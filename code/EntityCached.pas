@@ -1,3 +1,15 @@
+{$REGION 'documentation'}
+{
+  Copyright (c) 2019, Vencejo Software
+  Distributed under the terms of the Modified BSD License
+  The full license is distributed with this software
+}
+{
+  Simple method to cache entity and lists
+  @created(22/12/2018)
+  @author Vencejo Software <www.vencejosoft.com>
+}
+{$ENDREGION}
 unit EntityCached;
 
 interface
@@ -28,24 +40,24 @@ type
   IEntityCachedList<T> = interface
     ['{7A3F1CB2-9E8F-4951-8DA0-50F7E9AA7B40}']
     function Add(const Entity: T): Integer;
-    function ItemByCode(const Code: String): T;
-    function Update(const Code: String; const Entity: T): Boolean;
+    function ItemByCode(const Code: WideString): T;
+    function Update(const Code: WideString; const Entity: T): Boolean;
   end;
 
   TEntityCachedList<T> = class(TInterfacedObject, IEntityCachedList<T>)
   type
-    TEntityComparator = reference to function(const Code: String; const Entity: T): Boolean;
+    TEntityComparator = reference to function(const Code: WideString; const Entity: T): Boolean;
     TEntityList = TList<IEntityCached<T>>;
   strict private
     _Comparator: TEntityComparator;
     _SecondsToExpire: Word;
     _List: TEntityList;
-    function EntityCachedByCode(const Code: String): IEntityCached<T>;
+    function EntityCachedByCode(const Code: WideString): IEntityCached<T>;
     function IsAssignedEntity(const Entity: T): Boolean;
   public
     function Add(const Entity: T): Integer;
-    function ItemByCode(const Code: String): T;
-    function Update(const Code: String; const Entity: T): Boolean;
+    function ItemByCode(const Code: WideString): T;
+    function Update(const Code: WideString; const Entity: T): Boolean;
     constructor Create(const Comparator: TEntityComparator; const SecondsToExpire: Word);
     destructor Destroy; override;
     class function New(const Comparator: TEntityComparator; const SecondsToExpire: Word): IEntityCachedList<T>;
@@ -53,29 +65,29 @@ type
 
   IEntityQueryCached<T> = interface
     ['{33EA76E8-AAEB-4C9E-A24D-FBF016068D65}']
-    function Filter: String;
+    function Filter: WideString;
     function List: T;
     function IsExpired: Boolean;
   end;
 
   TEntityQueryCached<T> = class sealed(TInterfacedObject, IEntityQueryCached<T>)
   strict private
-    _Filter: String;
+    _Filter: WideString;
     _List: T;
     _ExpirationTime: TDateTime;
   public
-    function Filter: String;
+    function Filter: WideString;
     function List: T;
     function IsExpired: Boolean;
-    constructor Create(const Filter: String; const List: T; const SecondsToExpire: Word);
+    constructor Create(const Filter: WideString; const List: T; const SecondsToExpire: Word);
     destructor Destroy; override;
-    class function New(const Filter: String; const List: T; const SecondsToExpire: Word): IEntityQueryCached<T>;
+    class function New(const Filter: WideString; const List: T; const SecondsToExpire: Word): IEntityQueryCached<T>;
   end;
 
   IEntityQueryCachedList<T> = interface
     ['{BBB46A3D-2C4A-4395-BAD4-73238B55D0D4}']
-    function Add(const Filter: String; const List: T): Integer;
-    function ItemByFilter(const Filter: String): T;
+    function Add(const Filter: WideString; const List: T): Integer;
+    function ItemByFilter(const Filter: WideString): T;
     procedure Invalidate;
   end;
 
@@ -86,8 +98,8 @@ type
     _List: TQueryList;
     _SecondsToExpire: Word;
   public
-    function Add(const Filter: String; const List: T): Integer;
-    function ItemByFilter(const Filter: String): T;
+    function Add(const Filter: WideString; const List: T): Integer;
+    function ItemByFilter(const Filter: WideString): T;
     procedure Invalidate;
     constructor Create(const SecondsToExpire: Word);
     destructor Destroy; override;
@@ -126,7 +138,7 @@ begin
   Result := _List.Add(TEntityCached<T>.New(Entity, _SecondsToExpire));
 end;
 
-function TEntityCachedList<T>.EntityCachedByCode(const Code: String): IEntityCached<T>;
+function TEntityCachedList<T>.EntityCachedByCode(const Code: WideString): IEntityCached<T>;
 var
   Item: IEntityCached<T>;
 begin
@@ -142,7 +154,7 @@ begin
         Exit(Item);
 end;
 
-function TEntityCachedList<T>.ItemByCode(const Code: String): T;
+function TEntityCachedList<T>.ItemByCode(const Code: WideString): T;
 var
   Item: IEntityCached<T>;
 begin
@@ -163,7 +175,7 @@ begin
     Result := CastedObject.AsObject <> nil;
 end;
 
-function TEntityCachedList<T>.Update(const Code: String; const Entity: T): Boolean;
+function TEntityCachedList<T>.Update(const Code: WideString; const Entity: T): Boolean;
 var
   Item: IEntityCached<T>;
 begin
@@ -195,7 +207,7 @@ end;
 
 { TEntityQueryCached }
 
-function TEntityQueryCached<T>.Filter: String;
+function TEntityQueryCached<T>.Filter: WideString;
 begin
   Result := _Filter;
 end;
@@ -210,7 +222,7 @@ begin
   Result := _List;
 end;
 
-constructor TEntityQueryCached<T>.Create(const Filter: String; const List: T; const SecondsToExpire: Word);
+constructor TEntityQueryCached<T>.Create(const Filter: WideString; const List: T; const SecondsToExpire: Word);
 begin
   _Filter := Filter;
   _List := List;
@@ -227,7 +239,7 @@ begin
   inherited;
 end;
 
-class function TEntityQueryCached<T>.New(const Filter: String; const List: T; const SecondsToExpire: Word)
+class function TEntityQueryCached<T>.New(const Filter: WideString; const List: T; const SecondsToExpire: Word)
   : IEntityQueryCached<T>;
 begin
   Result := TEntityQueryCached<T>.Create(Filter, List, SecondsToExpire);
@@ -235,12 +247,12 @@ end;
 
 { TEntityQueryCachedList }
 
-function TEntityQueryCachedList<T>.Add(const Filter: String; const List: T): Integer;
+function TEntityQueryCachedList<T>.Add(const Filter: WideString; const List: T): Integer;
 begin
   Result := _List.Add(TEntityQueryCached<T>.New(Filter, List, _SecondsToExpire));
 end;
 
-function TEntityQueryCachedList<T>.ItemByFilter(const Filter: String): T;
+function TEntityQueryCachedList<T>.ItemByFilter(const Filter: WideString): T;
 var
   Item: IEntityQueryCached<T>;
 begin
@@ -279,3 +291,4 @@ begin
 end;
 
 end.
+

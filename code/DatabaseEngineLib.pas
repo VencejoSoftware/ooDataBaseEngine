@@ -1,3 +1,15 @@
+{$REGION 'documentation'}
+{
+  Copyright (c) 2019, Vencejo Software
+  Distributed under the terms of the Modified BSD License
+  The full license is distributed with this software
+}
+{
+  Database engine library
+  @created(18/09/2018)
+  @author Vencejo Software <www.vencejosoft.com>
+}
+{$ENDREGION}
 unit DatabaseEngineLib;
 
 interface
@@ -7,11 +19,43 @@ uses
   DatabaseEngine;
 
 type
+{$REGION 'documentation'}
+{
+  @abstract(Database engine library)
+  Object to encapsulate the database engine building
+  @member(NewADOEngine Creates a new ADO engine database object)
+  @member(NewFirebirdEngine Creates a new Firebird engin database object)
+}
+{$ENDREGION}
   IDatabaseEngineLib = interface
     ['{597C385A-F2B4-4231-B76F-5787139477BD}']
     function NewADOEngine: IDatabaseEngine;
     function NewFirebirdEngine: IDatabaseEngine;
   end;
+
+{$REGION 'documentation'}
+{
+  @abstract(Implementation of @link(IDatabaseEngineLib))
+  @member(NewADOEngine @seealso(IDatabaseEngineLib.NewADOEngine))
+  @member(NewFirebirdEngine @seealso(IDatabaseEngineLib.ValuNewFirebirdEngine))
+  @member(
+    SanitizedFilePath Expand path to absolute to skip errores
+    @param(Path Library path)
+    @return(String with path sanitized)
+  )
+  @member(
+    Create Object constructor. If DLL file not exists raise a error
+    @param(DLLPath Path to lib binary)
+  )
+  @member(
+    Destroy Object destructor
+  )
+  @member(
+    New Create a new @classname as interface
+    @param(DLLPath Path to lib binary)
+  )
+}
+{$ENDREGION}
 
   TDatabaseEngineLib = class sealed(TInterfacedObject, IDatabaseEngineLib)
   strict private
