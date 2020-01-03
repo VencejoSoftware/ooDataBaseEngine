@@ -71,6 +71,6 @@ end;
 initialization
 
 RegisterTests('DatabaseValueFormat test', [TSQLDatabaseDateFormatTest {$IFNDEF FPC}.Suite
-  {$ENDIF}, TOracleDatabaseDateFormatTest{$IFNDEF FPC}.Suite {$ENDIF}]);
+{$ENDIF}, TOracleDatabaseDateFormatTest{$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.
