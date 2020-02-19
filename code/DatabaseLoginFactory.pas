@@ -98,6 +98,7 @@ begin
   Dialect := IniObject.ReadString(Section, 'Dialect', '3');
   Charset := IniObject.ReadString(Section, 'Charset', 'ISO8859_1');
   Result := TDatabaseLogin.New(User, Password);
+  Result.Parameters.Add(TConnectionParam.New('NAME', 'Firebird.' + Section));
   Result.Parameters.Add(TConnectionParam.New('ENGINE', 'Firebird'));
   Result.Parameters.Add(TConnectionParam.New('LIB_PATH', LibrayPath));
   Result.Parameters.Add(TConnectionParam.New('DB_PATH', StoragePath));
@@ -115,6 +116,7 @@ begin
   User := _Cipher.Decode(IniObject.ReadString(Section, 'User', 'sysdba'));
   Password := _Cipher.Decode(IniObject.ReadString(Section, 'Password', 'masterkey'));
   Result := TDatabaseLogin.New(User, Password);
+  Result.Parameters.Add(TConnectionParam.New('NAME', 'Oracle.' + TnsName));
   Result.Parameters.Add(TConnectionParam.New('ENGINE', 'Oracle'));
   Result.Parameters.Add(TConnectionParam.New('TNS_NAME', TnsName));
   Result.Parameters.Add(TConnectionParam.New('CONNECTION_STRING', Format(ORA_CONNECTION_STRING,

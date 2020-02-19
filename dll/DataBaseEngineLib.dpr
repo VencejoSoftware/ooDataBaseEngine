@@ -1,12 +1,8 @@
-{
-  Copyright (c) 2019, Vencejo Software
-  Distributed under the terms of the Modified BSD License
-  The full license is distributed with this software
-}
 library DataBaseEngineLib;
 
 uses
   SimpleShareMem,
+  LogActor,
   ADOEngine in '..\code\ADOEngine.pas',
   DatabaseEngine in '..\code\DatabaseEngine.pas',
   DatabaseLogin in '..\code\DatabaseLogin.pas',
@@ -17,9 +13,11 @@ uses
   DatasetExecution in '..\code\DatasetExecution.pas',
   ExecutionResult in '..\code\ExecutionResult.pas',
   FailedExecution in '..\code\FailedExecution.pas',
-  SuccededExecution in '..\code\SuccededExecution.pas';
+  SuccededExecution in '..\code\SuccededExecution.pas',
+  LoggedDatabaseEngine in '..\code\LoggedDatabaseEngine.pas';
 
 {$R *.res}
+
 
 function NewADOEngine: IDatabaseEngine; stdcall; export;
 begin
@@ -31,9 +29,16 @@ begin
   Result := TFirebirdEngine.New;
 end;
 
+function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
+  stdcall; export;
+begin
+  Result := TLoggedDatabaseEngine.New(DatabaseEngine, LogActor);
+end;
+
 exports
   NewADOEngine,
-  NewFirebirdEngine;
+  NewFirebirdEngine,
+  NewLoggedDatabaseEngine;
 
 begin
   IsMultiThread := True;
