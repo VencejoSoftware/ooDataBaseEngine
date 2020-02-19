@@ -1,5 +1,5 @@
 {
-  Copyright (c) 2019, Vencejo Software
+  Copyright (c) 2020, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -12,6 +12,9 @@ program DatabaseEngineConsoleDemo;
 uses
   SysUtils,
   DB,
+  Log,
+  LogActor,
+  ConsoleLog,
   DatabaseEngine,
   ExecutionResult,
   FailedExecution,
@@ -30,8 +33,10 @@ var
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
   SQL: String;
+  LogActor: ILogActor;
 begin
-  DatabaseEngine := DatabaseEngineLib.NewFirebirdEngine;
+  LogActor := TLogActor.New(TConsoleLog.New(nil));
+  DatabaseEngine := DatabaseEngineLib.NewLoggedDatabaseEngine(DatabaseEngineLib.NewFirebirdEngine, LogActor);
   Login := TDatabaseLogin.New('sysdba', 'masterkey');
   Login.Parameters.Add(TConnectionParam.New('LIB_PATH', '..\..\..\dependencies\fbclient.dll'));
   Login.Parameters.Add(TConnectionParam.New('ENGINE', 'Firebird'));
@@ -52,6 +57,8 @@ begin
           Dataset.Next
         end;
       end;
+    SQL := 'INSERT INTO NON_EXISTS(FIELD) VALUES (1)';
+    ExecutionResult := DatabaseEngine.Execute(SQL);
   finally
     DatabaseEngine.Disconnect;
   end;

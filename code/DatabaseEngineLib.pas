@@ -16,6 +16,7 @@ interface
 
 uses
   SysUtils, Windows,
+  LogActor,
   DatabaseEngine;
 
 type
@@ -23,14 +24,20 @@ type
 {
   @abstract(Database engine library)
   Object to encapsulate the database engine building
-  @member(NewADOEngine Creates a new ADO engine database object)
-  @member(NewFirebirdEngine Creates a new Firebird engin database object)
+  @member(NewADOEngine Creates a new ADO database engine object)
+  @member(NewFirebirdEngine Creates a new Firebird database engine object)
+  @member(
+    NewLoggedDatabaseEngine Creates a new logged database engine object
+    @param(DatabaseEngine @link(IDatabaseEngine Database engine object to encapsulate))
+    @param(Log @link(ILog Log object to handle events))
+  )
 }
 {$ENDREGION}
   IDatabaseEngineLib = interface
     ['{597C385A-F2B4-4231-B76F-5787139477BD}']
     function NewADOEngine: IDatabaseEngine;
     function NewFirebirdEngine: IDatabaseEngine;
+    function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
   end;
 
 {$REGION 'documentation'}
@@ -62,15 +69,19 @@ type
   type
     TNewADOEngine = function: IDatabaseEngine; stdcall;
     TNewFirebirdEngine = function: IDatabaseEngine; stdcall;
+    TNewLoggedDatabaseEngine = function(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor)
+      : IDatabaseEngine; stdcall;
   strict private
     _LibHandle: THandle;
     _NewADOEngine: TNewADOEngine;
     _NewFirebirdEngine: TNewFirebirdEngine;
+    _NewLoggedDatabaseEngine: TNewLoggedDatabaseEngine;
   private
     function SanitizedFilePath(const Path: String): String;
   public
     function NewADOEngine: IDatabaseEngine;
     function NewFirebirdEngine: IDatabaseEngine;
+    function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
     constructor Create(const DLLPath: String);
     destructor Destroy; override;
     class function New(const DLLPath: String): IDatabaseEngineLib;
@@ -90,6 +101,13 @@ begin
     Result := _NewFirebirdEngine;
 end;
 
+function TDatabaseEngineLib.NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor)
+  : IDatabaseEngine;
+begin
+  if Assigned(@_NewLoggedDatabaseEngine) then
+    Result := _NewLoggedDatabaseEngine(DatabaseEngine, LogActor);
+end;
+
 function TDatabaseEngineLib.SanitizedFilePath(const Path: String): String;
 begin
   Result := ExpandFileName(String(Path));
@@ -104,6 +122,7 @@ begin
     RaiseLastOSError;
   @_NewFirebirdEngine := GetProcAddress(_LibHandle, PChar('NewFirebirdEngine'));
   @_NewADOEngine := GetProcAddress(_LibHandle, PChar('NewADOEngine'));
+  @_NewLoggedDatabaseEngine := GetProcAddress(_LibHandle, PChar('NewLoggedDatabaseEngine'));
 end;
 
 destructor TDatabaseEngineLib.Destroy;
