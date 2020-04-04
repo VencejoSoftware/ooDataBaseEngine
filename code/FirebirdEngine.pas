@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
-{
-  Copyright (c) 2019, Vencejo Software
+{
+  Copyright (c) 2020, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -17,7 +17,7 @@ interface
 uses
   SysUtils, StrUtils,
   DB,
-  ZConnection, ZDataset, ZDbcIntfs,
+  ZConnection, ZDataset, ZDbcIntfs, ZSqlProcessor, ZScriptParser, ZClasses,
   DatabaseLogin,
   ExecutionResult, FailedExecution, SuccededExecution, DatasetExecution,
   DatabaseEngine;
@@ -37,14 +37,23 @@ type
   @member(OpenDataset @seealso(IDatabaseEngine.OpenDataset))
   @member(Execute @seealso(IDatabaseEngine.Execute))
   @member(ExecuteReturning @seealso(IDatabaseEngine.ExecuteReturning))
+  @member(ExecuteScript @seealso(IDatabaseEngine.ExecuteScript))
+  @member(
+    SanitizeEOLStatement Checks for end of char delimiter (';') and appends if not exist
+    @return(Statement text with ';' end of char)
+  )
   @member(Create Object constructor)
   @member(Destroy Object destructor)
   @member(New Create a new @classname as interface)
 }
 {$ENDREGION}
   TFirebirdEngine = class sealed(TInterfacedObject, IDatabaseEngine)
+  const
+    STATEMENT_DELIMITER = ';';
   strict private
     _Database: TZConnection;
+  private
+    function SanitizeEOLStatement(const Statement: WideString): WideString;
   public
     function InTransaction: Boolean;
     function BeginTransaction: Boolean;
@@ -56,6 +65,7 @@ type
     function OpenDataset(const Statement: WideString): IExecutionResult;
     function Execute(const Statement: WideString; const UseGlobalTransaction: Boolean): IExecutionResult;
     function ExecuteReturning(const Statement: WideString; const UseGlobalTransaction: Boolean): IExecutionResult;
+    function ExecuteScript(const StatementList: array of WideString): IExecutionResult;
     constructor Create;
     destructor Destroy; override;
     class function New: IDatabaseEngine;
@@ -91,33 +101,24 @@ end;
 
 function TFirebirdEngine.Connect(const Login: IDatabaseLogin): Boolean;
 var
-  Charset, Dialect, DBPath: WideString;
+  Charset, Dialect, DBPath, ServerHostName, Port: WideString;
 begin
-  if Login.Parameters.TryGetValue('DB_PATH', DBPath) then
-    _Database.Database := DBPath;
+  _Database.Protocol := 'firebird';
   _Database.User := Login.User;
   _Database.Password := Login.Password;
   _Database.LibraryLocation := Login.Parameters.ItemByKey('LIB_PATH').Value;
   _Database.TransactIsolationLevel := tiReadCommitted;
-  _Database.Protocol := 'firebird';
-// TODO:
-// _Database.HostName := EmptyStr;
-// _Database.Port := 3050;
+  if Login.Parameters.TryGetValue('DB_PATH', DBPath) then
+    _Database.Database := DBPath;
+  if Login.Parameters.TryGetValue('host', ServerHostName) then
+    _Database.HostName := ServerHostName;
+  if Login.Parameters.TryGetValue('port', Port) then
+    _Database.Port := StrToInt(Port);
   _Database.Properties.Clear;
   if Login.Parameters.TryGetValue('DIALECT', Dialect) then
     _Database.Properties.Values['dialect'] := Dialect;
   if Login.Parameters.TryGetValue('CHARSET', Charset) then
   begin
-// _Database.Properties.Add('character_set_client=utf8');
-// _Database.Properties.Add('character_set_connection=utf8');
-// _Database.Properties.Add('character_set_database=utf8');
-// _Database.Properties.Add('character_set_results=utf8');
-// _Database.Properties.Add('character_set_server=utf8');
-// _Database.Properties.Add('character_set_system=utf8');
-// _Database.Properties.Add('collation_connection=utf8_general_ci');
-// _Database.Properties.Add('collation_database=utf8_general_ci');
-// _Database.Properties.Add('collation_server=utf8_general_ci');
-// _Database.Properties.Add('Codepage=utf8');
     _Database.ClientCodepage := Charset;
     _Database.Properties.Add('lc_ctype=' + Charset);
     _Database.Properties.Add('Codepage=' + Charset);
@@ -208,6 +209,40 @@ begin
   end;
 end;
 
+function TFirebirdEngine.SanitizeEOLStatement(const Statement: WideString): WideString;
+begin
+  Result := Statement;
+  if RightStr(Result, 1) <> STATEMENT_DELIMITER then
+    Result := Result + STATEMENT_DELIMITER;
+end;
+
+function TFirebirdEngine.ExecuteScript(const StatementList: array of WideString): IExecutionResult;
+var
+  SQLProcessor: TZSQLProcessor;
+  Statement: WideString;
+begin
+  SQLProcessor := TZSQLProcessor.Create(_Database);
+  try
+    SQLProcessor.Connection := _Database;
+    SQLProcessor.Delimiter := STATEMENT_DELIMITER;
+    SQLProcessor.ParamCheck := False;
+    SQLProcessor.DelimiterType := dtSetTerm;
+    for Statement in StatementList do
+      SQLProcessor.Script.Append(SanitizeEOLStatement(Statement));
+    try
+      SQLProcessor.Execute;
+      Result := TSuccededExecution.New(Statement, SQLProcessor.StatementCount);
+    except
+      on E: EZSQLException do
+        Result := TFailedExecution.New(Statement, E.ErrorCode, E.Message);
+      on E: Exception do
+        Result := TFailedExecution.New(Statement, 0, E.Message);
+    end;
+  finally
+    SQLProcessor.Free;
+  end;
+end;
+
 constructor TFirebirdEngine.Create;
 begin
   _Database := TZConnection.Create(nil);
@@ -228,4 +263,3 @@ begin
 end;
 
 end.
-

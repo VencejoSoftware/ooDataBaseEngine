@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
-{
-  Copyright (c) 2019, Vencejo Software
+{
+  Copyright (c) 2020, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -38,6 +38,7 @@ type
   @member(OpenDataset @seealso(IDatabaseEngine.OpenDataset))
   @member(Execute @seealso(IDatabaseEngine.Execute))
   @member(ExecuteReturning @seealso(IDatabaseEngine.ExecuteReturning))
+  @member(ExecuteScript @seealso(IDatabaseEngine.ExecuteScript))
   @member(Create Object constructor)
   @member(Destroy Object destructor)
   @member(New Create a new @classname as interface)
@@ -57,6 +58,7 @@ type
     function OpenDataset(const Statement: WideString): IExecutionResult;
     function Execute(const Statement: WideString; const UseGlobalTransaction: Boolean): IExecutionResult;
     function ExecuteReturning(const Statement: WideString; const UseGlobalTransaction: Boolean): IExecutionResult;
+    function ExecuteScript(const StatementList: array of WideString): IExecutionResult;
     constructor Create;
     destructor Destroy; override;
     class function New: IDatabaseEngine;
@@ -181,6 +183,26 @@ begin
   end;
 end;
 
+function TADOEngine.ExecuteScript(const StatementList: array of WideString): IExecutionResult;
+var
+  AffectedRows: Integer;
+  Statement: WideString;
+begin
+  BeginTransaction;
+  try
+    for Statement in StatementList do
+      _Connection.Execute(Statement, AffectedRows);
+    CommitTransaction;
+    Result := TSuccededExecution.New(Statement, AffectedRows);
+  except
+    on E: Exception do
+    begin
+      RollbackTransaction;
+      Result := TFailedExecution.New(Statement, 0, E.Message);
+    end;
+  end;
+end;
+
 constructor TADOEngine.Create;
 begin
   CoInitialize(nil);
@@ -202,4 +224,3 @@ begin
 end;
 
 end.
-
