@@ -1,7 +1,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 # ooDatabaseEngine - Object pascal database object library
-Library to for database access
+Library to define a database access layer
 
 ### Documentation
 If not exists folder "code-documentation" then run the batch "build_doc". The main entry is ./doc/index.html

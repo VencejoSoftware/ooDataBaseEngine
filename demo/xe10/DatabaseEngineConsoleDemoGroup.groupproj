@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{FB83C82F-DC07-4D9F-8D27-3E2177225201}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="DatabaseEngineConsoleDemo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\dll\xe10\DataBaseEngineLib.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DatabaseEngineConsoleDemo">
+        <MSBuild Projects="DatabaseEngineConsoleDemo.dproj"/>
+    </Target>
+    <Target Name="DatabaseEngineConsoleDemo:Clean">
+        <MSBuild Projects="DatabaseEngineConsoleDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DatabaseEngineConsoleDemo:Make">
+        <MSBuild Projects="DatabaseEngineConsoleDemo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DataBaseEngineLib">
+        <MSBuild Projects="..\..\dll\xe10\DataBaseEngineLib.dproj"/>
+    </Target>
+    <Target Name="DataBaseEngineLib:Clean">
+        <MSBuild Projects="..\..\dll\xe10\DataBaseEngineLib.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataBaseEngineLib:Make">
+        <MSBuild Projects="..\..\dll\xe10\DataBaseEngineLib.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DatabaseEngineConsoleDemo;DataBaseEngineLib"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DatabaseEngineConsoleDemo:Clean;DataBaseEngineLib:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DatabaseEngineConsoleDemo:Make;DataBaseEngineLib:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
-{
-  Copyright (c) 2019, Vencejo Software
+{
+  Copyright (c) 2020, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -291,4 +291,3 @@ begin
 end;
 
 end.
-

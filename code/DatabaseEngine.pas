@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
-{
-  Copyright (c) 2019, Vencejo Software
+{
+  Copyright (c) 2020, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -77,6 +77,11 @@ type
     @param(UseGlobalTransaction Defines is the execution run into the global transaction or create an isolate one)
     @return(link(@IExecutionResult Execution result object))
   )
+  @member(
+    ExecuteScript Execute a script directly to the database
+    @param(StatementList Lines of statements to run)
+    @return(link(@IExecutionResult Execution result object))
+  )
 }
 {$ENDREGION}
   IDatabaseEngine = interface
@@ -92,9 +97,9 @@ type
     function Execute(const Statement: WideString; const UseGlobalTransaction: Boolean = False): IExecutionResult;
     function ExecuteReturning(const Statement: WideString; const UseGlobalTransaction: Boolean = False)
       : IExecutionResult;
+    function ExecuteScript(const StatementList: array of WideString): IExecutionResult;
   end;
 
 implementation
 
 end.
-
