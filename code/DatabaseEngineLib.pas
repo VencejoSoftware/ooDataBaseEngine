@@ -15,7 +15,7 @@ unit DatabaseEngineLib;
 interface
 
 uses
-  SysUtils, Windows,
+  SysUtils, Windows, ActiveX,
   LogActor,
   DatabaseEngine;
 
@@ -37,6 +37,7 @@ type
     ['{597C385A-F2B4-4231-B76F-5787139477BD}']
     function NewADOEngine: IDatabaseEngine;
     function NewFirebirdEngine: IDatabaseEngine;
+// function NewFirebirdEmbedded15Engine: IDatabaseEngine;
     function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
   end;
 
@@ -75,12 +76,14 @@ type
     _LibHandle: THandle;
     _NewADOEngine: TNewADOEngine;
     _NewFirebirdEngine: TNewFirebirdEngine;
+// _NewFirebirdEmbedded15Engine: TNewFirebirdEngine;
     _NewLoggedDatabaseEngine: TNewLoggedDatabaseEngine;
   private
-    function SanitizedFilePath(const Path: String): String;
+    function ResolvePath(const Path: String): String;
   public
     function NewADOEngine: IDatabaseEngine;
     function NewFirebirdEngine: IDatabaseEngine;
+// function NewFirebirdEmbedded15Engine: IDatabaseEngine;
     function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
     constructor Create(const DLLPath: String);
     destructor Destroy; override;
@@ -101,6 +104,12 @@ begin
     Result := _NewFirebirdEngine;
 end;
 
+// function TDatabaseEngineLib.NewFirebirdEmbedded15Engine: IDatabaseEngine;
+// begin
+// if Assigned(@_NewFirebirdEmbedded15Engine) then
+// Result := _NewFirebirdEmbedded15Engine;
+// end;
+
 function TDatabaseEngineLib.NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor)
   : IDatabaseEngine;
 begin
@@ -108,19 +117,32 @@ begin
     Result := _NewLoggedDatabaseEngine(DatabaseEngine, LogActor);
 end;
 
-function TDatabaseEngineLib.SanitizedFilePath(const Path: String): String;
+function TDatabaseEngineLib.ResolvePath(const Path: String): String;
 begin
-  Result := ExpandFileName(String(Path));
+  if Length(ExtractFileName(Path)) < 1 then
+{$IFDEF CPUX64}
+    Result := Path + 'DataBaseEngineLib64.dll'
+{$ELSE}
+    Result := Path + 'DataBaseEngineLib32.dll'
+{$ENDIF}
+  else
+    Result := Path;
+  Result := ExpandFileName(Result);
 end;
 
 constructor TDatabaseEngineLib.Create(const DLLPath: String);
+var
+  DLLFilePath: String;
 begin
-  if not FileExists(SanitizedFilePath(DLLPath)) then
-    raise Exception.Create('Database engine DLL path not found');
-  _LibHandle := LoadLibrary(PChar(SanitizedFilePath(DLLPath)));
+  DLLFilePath := ResolvePath(DLLPath);
+  if not FileExists(DLLFilePath) then
+    raise Exception.Create(Format('Database engine  path "%s" not found', [DLLFilePath]));
+  CoInitialize(nil);
+  _LibHandle := LoadLibrary(PChar(DLLFilePath));
   if _LibHandle = 0 then
     RaiseLastOSError;
   @_NewFirebirdEngine := GetProcAddress(_LibHandle, PChar('NewFirebirdEngine'));
+// @_NewFirebirdEmbedded15Engine := GetProcAddress(_LibHandle, PChar('NewFirebirdEmbedded15Engine'));
   @_NewADOEngine := GetProcAddress(_LibHandle, PChar('NewADOEngine'));
   @_NewLoggedDatabaseEngine := GetProcAddress(_LibHandle, PChar('NewLoggedDatabaseEngine'));
 end;
@@ -129,6 +151,7 @@ destructor TDatabaseEngineLib.Destroy;
 begin
   if _LibHandle <> 0 then
     FreeLibrary(_LibHandle);
+  CoUninitialize;
   inherited;
 end;
 

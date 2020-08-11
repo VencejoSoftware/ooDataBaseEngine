@@ -16,6 +16,7 @@ interface
 
 uses
   DB,
+  Statement,
   ExecutionResult;
 
 type
@@ -54,20 +55,20 @@ type
 
   TDatasetExecution = class sealed(TInterfacedObject, IDatasetExecution)
   strict private
-    _Statement: WideString;
+    _Statement: IStatement;
     _Dataset: TDataSet;
   public
-    function Statement: WideString;
+    function Statement: IStatement;
     function Failed: Boolean;
     function Dataset: TDataSet;
-    constructor Create(const Statement: WideString; const Dataset: TDataSet);
+    constructor Create(const Statement: IStatement; const Dataset: TDataSet);
     destructor Destroy; override;
-    class function New(const Statement: WideString; const Dataset: TDataSet): IDatasetExecution;
+    class function New(const Statement: IStatement; const Dataset: TDataSet): IDatasetExecution;
   end;
 
 implementation
 
-function TDatasetExecution.Statement: WideString;
+function TDatasetExecution.Statement: IStatement;
 begin
   Result := _Statement;
 end;
@@ -82,7 +83,7 @@ begin
   Result := _Dataset;
 end;
 
-constructor TDatasetExecution.Create(const Statement: WideString; const Dataset: TDataSet);
+constructor TDatasetExecution.Create(const Statement: IStatement; const Dataset: TDataSet);
 begin
   _Statement := Statement;
   _Dataset := Dataset;
@@ -99,7 +100,7 @@ begin
   inherited;
 end;
 
-class function TDatasetExecution.New(const Statement: WideString; const Dataset: TDataSet): IDatasetExecution;
+class function TDatasetExecution.New(const Statement: IStatement; const Dataset: TDataSet): IDatasetExecution;
 begin
   Result := TDatasetExecution.Create(Statement, Dataset);
 end;

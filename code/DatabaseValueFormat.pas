@@ -100,6 +100,7 @@ begin
 end;
 
 { TOracleDatabaseDateFormat }
+
 function TOracleDatabaseDateFormat.IsOnlyDate(const Value: TDateTime): Boolean;
 begin
   Result := Frac(Value) = 0;

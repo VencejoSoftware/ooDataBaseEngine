@@ -9,6 +9,7 @@ interface
 
 uses
   Classes, SysUtils,
+  Statement,
   ExecutionResult,
   SuccededExecution,
 {$IFDEF FPC}
@@ -29,17 +30,18 @@ implementation
 
 procedure TSuccededExecutionTest.StatementIsSelectFromTable;
 begin
-  CheckEquals('SELECT * FROM TABLE', TSuccededExecution.New('SELECT * FROM TABLE', 10).Statement);
+  CheckEquals('SELECT * FROM TABLE;', TSuccededExecution.New(TStatement.New('SELECT * FROM TABLE'), 10)
+    .Statement.Syntax);
 end;
 
 procedure TSuccededExecutionTest.FailedIsFalse;
 begin
-  CheckFalse(TSuccededExecution.New('SELECT * FROM TABLE', 10).Failed);
+  CheckFalse(TSuccededExecution.New(TStatement.New('SELECT * FROM TABLE'), 10).Failed);
 end;
 
 procedure TSuccededExecutionTest.AffectedRowsIs10;
 begin
-  CheckEquals(10, TSuccededExecution.New('SELECT * FROM TABLE', 10).AffectedRows);
+  CheckEquals(10, TSuccededExecution.New(TStatement.New('SELECT * FROM TABLE'), 10).AffectedRows);
 end;
 
 initialization

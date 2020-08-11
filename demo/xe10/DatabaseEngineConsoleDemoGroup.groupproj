@@ -4,7 +4,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="DatabaseEngineConsoleDemo.dproj">
-            <Dependencies/>
+            <Dependencies>..\..\dll\xe10\DataBaseEngineLib.dproj</Dependencies>
         </Projects>
         <Projects Include="..\..\dll\xe10\DataBaseEngineLib.dproj">
             <Dependencies/>
@@ -17,13 +17,13 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="DatabaseEngineConsoleDemo">
+    <Target Name="DatabaseEngineConsoleDemo" DependsOnTargets="DataBaseEngineLib">
         <MSBuild Projects="DatabaseEngineConsoleDemo.dproj"/>
     </Target>
-    <Target Name="DatabaseEngineConsoleDemo:Clean">
+    <Target Name="DatabaseEngineConsoleDemo:Clean" DependsOnTargets="DataBaseEngineLib:Clean">
         <MSBuild Projects="DatabaseEngineConsoleDemo.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DatabaseEngineConsoleDemo:Make">
+    <Target Name="DatabaseEngineConsoleDemo:Make" DependsOnTargets="DataBaseEngineLib:Make">
         <MSBuild Projects="DatabaseEngineConsoleDemo.dproj" Targets="Make"/>
     </Target>
     <Target Name="DataBaseEngineLib">

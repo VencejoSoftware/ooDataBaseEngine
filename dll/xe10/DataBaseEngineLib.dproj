@@ -8,7 +8,7 @@
         <AppType>Library</AppType>
         <FrameworkType>None</FrameworkType>
         <ProjectVersion>18.4</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -124,18 +124,34 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\code\ADOEngine.pas"/>
-        <DCCReference Include="..\..\code\ConnectionParam.pas"/>
+        <DCCReference Include="..\..\code\ADOSettings.pas"/>
+        <DCCReference Include="..\..\code\ADOSettingsFactory.pas"/>
+        <DCCReference Include="..\..\code\ConnectionSettings.pas"/>
+        <DCCReference Include="..\..\code\ConnectionSettingsFactory.pas"/>
+        <DCCReference Include="..\..\code\Credential.pas"/>
+        <DCCReference Include="..\..\code\CredentialFactory.pas"/>
+        <DCCReference Include="..\..\code\CryptedCredential.pas"/>
         <DCCReference Include="..\..\code\DatabaseEngine.pas"/>
-        <DCCReference Include="..\..\code\DatabaseLogin.pas"/>
-        <DCCReference Include="..\..\code\DatabaseLoginFactory.pas"/>
         <DCCReference Include="..\..\code\DatabaseValueFormat.pas"/>
         <DCCReference Include="..\..\code\DatasetExecution.pas"/>
+        <DCCReference Include="..\..\code\DataStorage.pas"/>
         <DCCReference Include="..\..\code\EntityCached.pas"/>
         <DCCReference Include="..\..\code\ExecutionResult.pas"/>
         <DCCReference Include="..\..\code\FailedExecution.pas"/>
         <DCCReference Include="..\..\code\FirebirdEngine.pas"/>
+        <DCCReference Include="..\..\code\FirebirdSettings.pas"/>
+        <DCCReference Include="..\..\code\FirebirdSettingsFactory.pas"/>
         <DCCReference Include="..\..\code\LoggedDatabaseEngine.pas"/>
+        <DCCReference Include="..\..\code\Server.pas"/>
+        <DCCReference Include="..\..\code\ServerFactory.pas"/>
+        <DCCReference Include="..\..\code\SQLiteEngine.pas"/>
+        <DCCReference Include="..\..\code\SQLiteSettings.pas"/>
+        <DCCReference Include="..\..\code\SQLiteSettingsFactory.pas"/>
+        <DCCReference Include="..\..\code\Statement.pas"/>
         <DCCReference Include="..\..\code\SuccededExecution.pas"/>
+        <DCCReference Include="..\..\code\ZeosDatabaseEngine.pas"/>
+        <DCCReference Include="..\..\code\FirebirdTransactionSettings.pas"/>
+        <DCCReference Include="..\..\code\FirebirdTransactionSettingsFactory.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

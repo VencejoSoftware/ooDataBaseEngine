@@ -9,6 +9,7 @@ interface
 
 uses
   Classes, SysUtils,
+  Statement,
   ExecutionResult,
   FailedExecution,
 {$IFDEF FPC}
@@ -30,22 +31,24 @@ implementation
 
 procedure TFailedExecutionTest.StatementIsSelectFromTable;
 begin
-  CheckEquals('SELECT * FROM TABLE', TFailedExecution.New('SELECT * FROM TABLE', 666, 'Table not exists').Statement);
+  CheckEquals('SELECT * FROM TABLE;', TFailedExecution.New(TStatement.New('SELECT * FROM TABLE'), 666,
+    'Table not exists').Statement.Syntax);
 end;
 
 procedure TFailedExecutionTest.FailedIsTrue;
 begin
-  CheckTrue(TFailedExecution.New('SELECT * FROM TABLE', 666, 'Table not exists').Failed);
+  CheckTrue(TFailedExecution.New(TStatement.New('SELECT * FROM TABLE'), 666, 'Table not exists').Failed);
 end;
 
 procedure TFailedExecutionTest.ErrorCodeIs666;
 begin
-  CheckEquals(666, TFailedExecution.New('SELECT * FROM TABLE', 666, 'Table not exists').ErrorCode);
+  CheckEquals(666, TFailedExecution.New(TStatement.New('SELECT * FROM TABLE'), 666, 'Table not exists').ErrorCode);
 end;
 
 procedure TFailedExecutionTest.MessageIsTableNotExists;
 begin
-  CheckEquals('Table not exists', TFailedExecution.New('SELECT * FROM TABLE', 666, 'Table not exists').Message);
+  CheckEquals('Table not exists', TFailedExecution.New(TStatement.New('SELECT * FROM TABLE'), 666,
+    'Table not exists').Message);
 end;
 
 initialization

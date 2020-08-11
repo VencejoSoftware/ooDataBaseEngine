@@ -9,6 +9,7 @@ interface
 
 uses
   Classes, SysUtils,
+  Statement,
   FailedExecution,
   SuccededExecution,
   ExecutionResult,
@@ -34,10 +35,10 @@ var
   ExecutionResultList: IExecutionResultList;
 begin
   ExecutionResultList := TExecutionResultList.New;
-  ExecutionResultList.Add(TSuccededExecution.New('UPDATE TABLE SET FIELD = 1', 10));
-  ExecutionResultList.Add(TFailedExecution.New('EXECUTE PROCEDURE aaa', 123, 'aaa not defined'));
-  ExecutionResultList.Add(TSuccededExecution.New('SELECT FIRST 1 1 FROM DEMO', 1));
-  ExecutionResultList.Add(TSuccededExecution.New('UPDATE TABLE SET FIELD = 1', 10));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('UPDATE TABLE SET FIELD = 1'), 10));
+  ExecutionResultList.Add(TFailedExecution.New(TStatement.New('EXECUTE PROCEDURE aaa'), 123, 'aaa not defined'));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('SELECT FIRST 1 1 FROM DEMO'), 1));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('UPDATE TABLE SET FIELD = 1'), 10));
   CheckEquals(4, ExecutionResultList.Count);
 end;
 
@@ -46,10 +47,10 @@ var
   ExecutionResultList: IExecutionResultList;
 begin
   ExecutionResultList := TExecutionResultList.New;
-  ExecutionResultList.Add(TSuccededExecution.New('UPDATE TABLE SET FIELD = 1', 10));
-  ExecutionResultList.Add(TFailedExecution.New('EXECUTE PROCEDURE aaa', 123, 'aaa not defined'));
-  ExecutionResultList.Add(TSuccededExecution.New('SELECT FIRST 1 1 FROM DEMO', 1));
-  ExecutionResultList.Add(TSuccededExecution.New('UPDATE TABLE SET FIELD = 1', 10));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('UPDATE TABLE SET FIELD = 1'), 10));
+  ExecutionResultList.Add(TFailedExecution.New(TStatement.New('EXECUTE PROCEDURE aaa'), 123, 'aaa not defined'));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('SELECT FIRST 1 1 FROM DEMO'), 1));
+  ExecutionResultList.Add(TSuccededExecution.New(TStatement.New('UPDATE TABLE SET FIELD = 1'), 10));
   CheckTrue(ExecutionResultList.Failed);
 end;
 

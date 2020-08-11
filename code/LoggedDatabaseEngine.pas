@@ -18,7 +18,8 @@ uses
   SysUtils,
   Log,
   LogActor,
-  DatabaseLogin,
+  Statement,
+  ConnectionSettings,
   ExecutionResult,
   FailedExecution,
   DatabaseEngine;
@@ -35,9 +36,9 @@ type
   @member(Connect @seealso(IDatabaseEngine.Connect))
   @member(Disconnect @seealso(IDatabaseEngine.Disconnect))
   @member(IsConnected @seealso(IDatabaseEngine.IsConnected))
-  @member(OpenDataset @seealso(IDatabaseEngine.OpenDataset))
   @member(Execute @seealso(IDatabaseEngine.Execute))
   @member(ExecuteReturning @seealso(IDatabaseEngine.ExecuteReturning))
+  @member(ExecuteScript @seealso(IDatabaseEngine.ExecuteScript))
   @member(
     Create Object constructor
     @param(DatabaseEngine @link(IDatabaseEngine Data base engine object to encapsulate))
@@ -60,13 +61,14 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Login: IDatabaseLogin): Boolean;
+    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
-    function OpenDataset(const Statement: WideString): IExecutionResult;
-    function Execute(const Statement: WideString; const UseGlobalTransaction: Boolean = False): IExecutionResult;
-    function ExecuteReturning(const Statement: WideString; const UseGlobalTransaction: Boolean = False)
-      : IExecutionResult;
+    function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False): IExecutionResult;
+    function ExecuteReturning(const Statement: IStatement; const CommitData: Boolean;
+      const UseGlobalTransaction: Boolean = False): IExecutionResult;
+    function ExecuteScript(const StatementList: IStatementList; const SkipErrors: Boolean = False)
+      : IExecutionResultList;
     constructor Create(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor);
     class function New(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
   end;
@@ -117,17 +119,14 @@ begin
   end;
 end;
 
-function TLoggedDatabaseEngine.Connect(const Login: IDatabaseLogin): Boolean;
-var
-  DBName: WideString;
+function TLoggedDatabaseEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = '')
+  : Boolean;
 begin
   Result := False;
-  if not Login.Parameters.TryGetValue('NAME', DBName) then
-    DBName := EmptyWideStr;
-  _Logactor.WriteDebug('Connection to database ' + DBName);
+  _Logactor.WriteDebug('Connection to database ' + Settings.StorageName);
   try
-    Result := _DatabaseEngine.Connect(Login);
-    _Logactor.WriteDebug('Database connected ' + DBName);
+    Result := _DatabaseEngine.Connect(Settings, PasswordKey);
+    _Logactor.WriteDebug('Database connected ' + Settings.StorageName);
   except
     on E: Exception do
       _Logactor.WriteException(E, True)
@@ -152,47 +151,49 @@ begin
   Result := _DatabaseEngine.IsConnected;
 end;
 
-function TLoggedDatabaseEngine.OpenDataset(const Statement: WideString): IExecutionResult;
-begin
-  _Logactor.WriteDebug(Format('Opening dataset. Statemenet "%s"', [Statement]));
-  try
-    if Supports(Result, IFailedExecution) then
-      _Logactor.WriteError((Result as IFailedExecution).Message)
-    else
-      Result := _DatabaseEngine.OpenDataset(Statement);
-    _Logactor.WriteDebug(Format('Dataset opened. Statemenet "%s"', [Statement]));
-  except
-    on E: Exception do
-      _Logactor.WriteException(E, True)
-  end;
-end;
-
-function TLoggedDatabaseEngine.Execute(const Statement: WideString; const UseGlobalTransaction: Boolean = False)
+function TLoggedDatabaseEngine.Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False)
   : IExecutionResult;
 begin
-  _Logactor.WriteDebug(Format('Executing statemenet "%s"', [Statement]));
+  _Logactor.WriteDebug(Format('Executing statemenet "%s"', [Statement.Syntax]));
   try
     Result := _DatabaseEngine.Execute(Statement, UseGlobalTransaction);
     if Supports(Result, IFailedExecution) then
       _Logactor.WriteError((Result as IFailedExecution).Message)
     else
-      _Logactor.WriteDebug(Format('Executed statemenet "%s"', [Statement]));
+      _Logactor.WriteDebug(Format('Executed statemenet "%s"', [Statement.Syntax]));
   except
     on E: Exception do
       _Logactor.WriteException(E, True)
   end;
 end;
 
-function TLoggedDatabaseEngine.ExecuteReturning(const Statement: WideString;
+function TLoggedDatabaseEngine.ExecuteReturning(const Statement: IStatement; const CommitData: Boolean;
   const UseGlobalTransaction: Boolean = False): IExecutionResult;
 begin
-  _Logactor.WriteDebug(Format('Executing returning statemenet "%s"', [Statement]));
+  _Logactor.WriteDebug(Format('Executing returning statemenet "%s"', [Statement.Syntax]));
   try
     Result := _DatabaseEngine.ExecuteReturning(Statement, UseGlobalTransaction);
     if Supports(Result, IFailedExecution) then
       _Logactor.WriteError((Result as IFailedExecution).Message)
     else
-      _Logactor.WriteDebug(Format('Executed returning statemenet "%s"', [Statement]));
+      _Logactor.WriteDebug(Format('Executed returning statemenet "%s"', [Statement.Syntax]));
+  except
+    on E: Exception do
+      _Logactor.WriteException(E, True)
+  end;
+end;
+
+function TLoggedDatabaseEngine.ExecuteScript(const StatementList: IStatementList; const SkipErrors: Boolean)
+  : IExecutionResultList;
+begin
+// TODO: Log
+  try
+    Result := _DatabaseEngine.ExecuteScript(StatementList, SkipErrors);
+    if Supports(Result, IFailedExecution) then
+      _Logactor.WriteError((Result as IFailedExecution).Message)
+    else
+// TODO: Log
+        ;
   except
     on E: Exception do
       _Logactor.WriteException(E, True)

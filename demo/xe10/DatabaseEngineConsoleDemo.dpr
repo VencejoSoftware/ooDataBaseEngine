@@ -11,15 +11,20 @@ program DatabaseEngineConsoleDemo;
 uses
   SysUtils,
   DB,
+  XorCipher,
   Log,
   LogActor,
   ConsoleLog,
+  DataStorage,
+  ConnectionSettings,
+  ConnectionSettingsFactory,
+  FirebirdSettings,
+  FirebirdSettingsFactory,
   DatabaseEngine,
+  Statement,
   ExecutionResult,
   FailedExecution,
   DatasetExecution,
-  DatabaseLogin,
-  ConnectionParam,
   DatabaseEngineLib in '..\..\code\DatabaseEngineLib.pas';
 
 var
@@ -29,8 +34,10 @@ procedure DemoDataBaseFirebird;
 const
   DEPENDS_PATH = '..\..\..\..\dependencies\';
 var
+  LibPath: WideString;
+// DataStorage: IDataStorage;
+  Settings: IConnectionSettings;
   DatabaseEngine: IDatabaseEngine;
-  Login: IDatabaseLogin;
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
   SQL: String;
@@ -38,20 +45,19 @@ var
 begin
   LogActor := TLogActor.New(TConsoleLog.New(nil));
   DatabaseEngine := DatabaseEngineLib.NewLoggedDatabaseEngine(DatabaseEngineLib.NewFirebirdEngine, LogActor);
-  Login := TDatabaseLogin.New('sysdba', 'masterkey');
+// DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
+// Settings := TFirebirdSettingsFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'))
+// .Build('FirebirdEngine', DataStorage);
 {$IFDEF WIN64}
-  Login.Parameters.Add(TConnectionParam.New('LIB_PATH', DEPENDS_PATH + 'Firebird25x64\fbembed.dll'));
+  LibPath := DEPENDS_PATH + 'Firebird25x64\fbembed.dll';
 {$ELSE}
-  Login.Parameters.Add(TConnectionParam.New('LIB_PATH', DEPENDS_PATH + 'Firebird25x32\fbembed.dll'));
+  LibPath := DEPENDS_PATH + 'Firebird25x32\fbembed.dll';
 {$ENDIF}
-  Login.Parameters.Add(TConnectionParam.New('ENGINE', 'Firebird'));
-  Login.Parameters.Add(TConnectionParam.New('DB_PATH', DEPENDS_PATH + 'TEST.FDB'));
-  Login.Parameters.Add(TConnectionParam.New('DIALECT', '3'));
-  Login.Parameters.Add(TConnectionParam.New('CHARSET', 'ISO8859_1'));
-  DatabaseEngine.Connect(Login);
+  Settings := TFirebirdSettings.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
+  DatabaseEngine.Connect(Settings);
   try
-    SQL := 'select rdb$relation_name from rdb$relations where rdb$view_blr is null and (rdb$system_flag is null or rdb$system_flag = 0)';
-    ExecutionResult := DatabaseEngine.OpenDataset(SQL);
+    SQL := 'select current_timestamp from RDB$DATABASE';
+    ExecutionResult := DatabaseEngine.ExecuteReturning(TStatement.New(SQL), False);
     if not ExecutionResult.Failed then
       if Supports(ExecutionResult, IDatasetExecution) then
       begin
@@ -63,7 +69,43 @@ begin
         end;
       end;
     SQL := 'INSERT INTO NON_EXISTS(FIELD) VALUES (1)';
-    ExecutionResult := DatabaseEngine.Execute(SQL);
+    ExecutionResult := DatabaseEngine.Execute(TStatement.New(SQL), False);
+  finally
+    DatabaseEngine.Disconnect;
+  end;
+end;
+
+procedure DemoDataBaseFirebird15;
+const
+  DEPENDS_PATH = '..\..\..\..\dependencies\';
+  PASSWORD_KEY = '4A383018-9998-4D3C-A423-41253A290481';
+var
+  DataStorage: IDataStorage;
+  Settings: IConnectionSettings;
+  DatabaseEngine: IDatabaseEngine;
+  ExecutionResult: IExecutionResult;
+  Dataset: TDataSet;
+  SQL: String;
+  LogActor: ILogActor;
+begin
+  LogActor := TLogActor.New(TConsoleLog.New(nil));
+  DatabaseEngine := DatabaseEngineLib.NewLoggedDatabaseEngine(DatabaseEngineLib.NewFirebirdEngine, LogActor);
+  DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
+  Settings := TFirebirdSettingsFactory.New(TXorCipher.New(PASSWORD_KEY)).Build('FirebirdEngine15', DataStorage);
+  DatabaseEngine.Connect(Settings, PASSWORD_KEY);
+  try
+    SQL := 'select current_timestamp from RDB$DATABASE';
+    ExecutionResult := DatabaseEngine.ExecuteReturning(TStatement.New(SQL), False);
+    if not ExecutionResult.Failed then
+      if Supports(ExecutionResult, IDatasetExecution) then
+      begin
+        Dataset := (ExecutionResult as IDatasetExecution).Dataset;
+        while not Dataset.Eof do
+        begin
+          WriteLn(Dataset.Fields[0].AsString);
+          Dataset.Next
+        end;
+      end;
   finally
     DatabaseEngine.Disconnect;
   end;
@@ -80,7 +122,8 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   try
     DatabaseEngineLib := TDatabaseEngineLib.New(DEPLOY_PATH + 'DataBaseEngineLib.dll');
-    DemoDataBaseFirebird;
+// DemoDataBaseFirebird;
+    DemoDataBaseFirebird15;
     WriteLn('Press any key to exit');
     ReadLn;
   except

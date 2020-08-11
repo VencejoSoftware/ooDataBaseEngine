@@ -15,6 +15,7 @@ unit FailedExecution;
 interface
 
 uses
+  Statement,
   ExecutionResult;
 
 type
@@ -61,22 +62,22 @@ type
 
   TFailedExecution = class sealed(TInterfacedObject, IFailedExecution)
   strict private
-    _Statement: WideString;
+    _Statement: IStatement;
     _ErrorCode: NativeInt;
     _Message: WideString;
   public
-    function Statement: WideString;
+    function Statement: IStatement;
     function Failed: Boolean;
     function ErrorCode: NativeInt;
     function Message: WideString;
-    constructor Create(const Statement: WideString; const ErrorCode: NativeInt; const Message: WideString);
-    class function New(const Statement: WideString; const ErrorCode: NativeInt; const Message: WideString)
+    constructor Create(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString);
+    class function New(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString)
       : IFailedExecution;
   end;
 
 implementation
 
-function TFailedExecution.Statement: WideString;
+function TFailedExecution.Statement: IStatement;
 begin
   Result := _Statement;
 end;
@@ -96,14 +97,14 @@ begin
   Result := _Message;
 end;
 
-constructor TFailedExecution.Create(const Statement: WideString; const ErrorCode: NativeInt; const Message: WideString);
+constructor TFailedExecution.Create(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString);
 begin
   _Statement := Statement;
   _ErrorCode := ErrorCode;
   _Message := Message;
 end;
 
-class function TFailedExecution.New(const Statement: WideString; const ErrorCode: NativeInt; const Message: WideString)
+class function TFailedExecution.New(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString)
   : IFailedExecution;
 begin
   Result := TFailedExecution.Create(Statement, ErrorCode, Message);

@@ -16,6 +16,11 @@ if not exist %delphi3rdParty%\zeosdbo\ (
   git clone https://github.com/VencejoSoftware/zeosdbo.git %delphi3rdParty%\zeosdbo\
 )
 
+if not exist %delphi3rdParty%\rxMemDataset\ (
+  @echo "Clonning rxMemDataset..."
+  git clone https://github.com/VencejoSoftware/rxMemDataset.git %delphi3rdParty%\rxMemDataset\
+)
+
 if not exist %delphiooLib%\ooCipher\ (
   @echo "Clonning ooCipher..."
   git clone https://github.com/VencejoSoftware/ooCipher.git %delphiooLib%\ooCipher\

@@ -15,8 +15,10 @@ unit DatabaseEngine;
 interface
 
 uses
-  DatabaseLogin,
-  ExecutionResult;
+  SysUtils,
+  ConnectionSettings,
+  ExecutionResult,
+  Statement;
 
 const
 {$REGION 'documentation'}
@@ -27,6 +29,14 @@ const
   NULL = 'NULL';
 
 type
+{$REGION 'documentation'}
+{
+  @abstract(Class for database engine exceptions)
+}
+{$ENDREGION}
+  EDatabaseEngine = class(Exception)
+  end;
+
 {$REGION 'documentation'}
 {
   @abstract(Database engine object)
@@ -49,7 +59,8 @@ type
   )
   @member(
     Connect Try to login into database
-    @param(Login @link(ILogin Login object))
+    @param(Login @link(IConnectionSettings Connection settings object))
+    @param(PasswordKey Key to reveal encrypted password)
     @return(@true if connection is done, @false if fail)
   )
   @member(
@@ -61,43 +72,41 @@ type
     @return(@true if is connected, @false if not)
   )
   @member(
-    OpenDataset Open and return a new dataset based in a query
-    @param(Statement Statement query to run)
-    @return(link(@IExecutionResult Execution result object))
-  )
-  @member(
     Execute Run a statement to alter data or database struct
-    @param(Statement Statement query to run)
+    @param(Statement @link(IStatement Query to execute))
     @param(UseGlobalTransaction Defines is the execution run into the global transaction or create an isolate one)
     @return(link(@IExecutionResult Execution result object))
   )
   @member(
-    ExecuteReturning Run a statement to alter data or database struct and wait for data returning
-    @param(Statement Statement query to run)
+    ExecuteReturning Run a statement to alter or read data and wait for returned data
+    @param(Statement @link(IStatement Query to execute))
+    @param(CommitData Defines if the execution uses a transaction to data commit)
     @param(UseGlobalTransaction Defines is the execution run into the global transaction or create an isolate one)
     @return(link(@IExecutionResult Execution result object))
   )
   @member(
     ExecuteScript Execute a script directly to the database
-    @param(StatementList Lines of statements to run)
-    @return(link(@IExecutionResult Execution result object))
+    @param(StatementList @link(IStatementList Query list to execute))
+    @param(SkipErrors If @true then ignore execution exceptions)
+    @return(link(@IExecutionResultList Execution result list object))
   )
 }
 {$ENDREGION}
+
   IDatabaseEngine = interface
     ['{911CC81E-2051-4531-B758-6BDB7E04F55E}']
     function InTransaction: Boolean;
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Login: IDatabaseLogin): Boolean;
+    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
-    function OpenDataset(const Statement: WideString): IExecutionResult;
-    function Execute(const Statement: WideString; const UseGlobalTransaction: Boolean = False): IExecutionResult;
-    function ExecuteReturning(const Statement: WideString; const UseGlobalTransaction: Boolean = False)
-      : IExecutionResult;
-    function ExecuteScript(const StatementList: array of WideString): IExecutionResult;
+    function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False): IExecutionResult;
+    function ExecuteReturning(const Statement: IStatement; const CommitData: Boolean;
+      const UseGlobalTransaction: Boolean = False): IExecutionResult;
+    function ExecuteScript(const StatementList: IStatementList; const SkipErrors: Boolean = False)
+      : IExecutionResultList;
   end;
 
 implementation

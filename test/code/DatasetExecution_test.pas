@@ -10,6 +10,7 @@ interface
 uses
   Classes, SysUtils,
   DB,
+  Statement,
   ExecutionResult,
   DatasetExecution,
 {$IFDEF FPC}
@@ -42,17 +43,18 @@ end;
 
 procedure TDatasetExecutionTest.StatementIsSelectFromTable;
 begin
-  CheckEquals('SELECT * FROM TABLE', TDatasetExecution.New('SELECT * FROM TABLE', MockDataset).Statement);
+  CheckEquals('SELECT * FROM TABLE;', TDatasetExecution.New(TStatement.New('SELECT * FROM TABLE'), MockDataset)
+    .Statement.Syntax);
 end;
 
 procedure TDatasetExecutionTest.FailedIsFalse;
 begin
-  CheckFalse(TDatasetExecution.New('SELECT * FROM TABLE', MockDataset).Failed);
+  CheckFalse(TDatasetExecution.New(TStatement.New('SELECT * FROM TABLE'), MockDataset).Failed);
 end;
 
 procedure TDatasetExecutionTest.DatasetIsAssigned;
 begin
-  CheckTrue(Assigned(TDatasetExecution.New('SELECT * FROM TABLE', MockDataset).Dataset));
+  CheckTrue(Assigned(TDatasetExecution.New(TStatement.New('SELECT * FROM TABLE'), MockDataset).Dataset));
 end;
 
 initialization

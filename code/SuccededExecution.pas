@@ -15,6 +15,7 @@ unit SuccededExecution;
 interface
 
 uses
+  Statement,
   ExecutionResult;
 
 type
@@ -53,19 +54,19 @@ type
 
   TSuccededExecution = class sealed(TInterfacedObject, ISuccededExecution)
   strict private
-    _Statement: WideString;
+    _Statement: IStatement;
     _AffectedRows: NativeUInt;
   public
-    function Statement: WideString;
+    function Statement: IStatement;
     function Failed: Boolean;
     function AffectedRows: NativeUInt;
-    constructor Create(const Statement: WideString; const AffectedRows: NativeUInt);
-    class function New(const Statement: WideString; const AffectedRows: NativeUInt): ISuccededExecution;
+    constructor Create(const Statement: IStatement; const AffectedRows: NativeUInt);
+    class function New(const Statement: IStatement; const AffectedRows: NativeUInt): ISuccededExecution;
   end;
 
 implementation
 
-function TSuccededExecution.Statement: WideString;
+function TSuccededExecution.Statement: IStatement;
 begin
   Result := _Statement;
 end;
@@ -80,13 +81,13 @@ begin
   Result := _AffectedRows;
 end;
 
-constructor TSuccededExecution.Create(const Statement: WideString; const AffectedRows: NativeUInt);
+constructor TSuccededExecution.Create(const Statement: IStatement; const AffectedRows: NativeUInt);
 begin
   _Statement := Statement;
   _AffectedRows := AffectedRows;
 end;
 
-class function TSuccededExecution.New(const Statement: WideString; const AffectedRows: NativeUInt): ISuccededExecution;
+class function TSuccededExecution.New(const Statement: IStatement; const AffectedRows: NativeUInt): ISuccededExecution;
 begin
   Result := TSuccededExecution.Create(Statement, AffectedRows);
 end;

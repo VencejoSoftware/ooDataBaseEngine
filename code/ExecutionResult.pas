@@ -15,15 +15,16 @@ unit ExecutionResult;
 interface
 
 uses
-  IterableList;
+  IterableList,
+  Statement;
 
 type
 {$REGION 'documentation'}
 {
   @abstract(Object to define an execution result)
   @member(
-    Statement Return the executed statement
-    @return(Statement text)
+    Statement Return the executed statement object
+    @return(@link(IStatement Statement object))
   )
   @member(
     Failed Defines if the execution runned ok
@@ -33,7 +34,7 @@ type
 {$ENDREGION}
   IExecutionResult = interface
     ['{5608735A-89BC-4343-8147-30B031D3449D}']
-    function Statement: WideString;
+    function Statement: IStatement;
     function Failed: Boolean;
   end;
 

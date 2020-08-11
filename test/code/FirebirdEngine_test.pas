@@ -10,10 +10,10 @@ interface
 uses
   Classes, SysUtils,
   DB,
+  Statement,
   FailedExecution, SuccededExecution, ExecutionResult, DatasetExecution,
   DatabaseEngine, FirebirdEngine,
-  ConnectionParam,
-  DatabaseLogin,
+  Server, Credential, ConnectionSettings, FirebirdSettings,
 {$IFDEF FPC}
   fpcunit, testregistry
 {$ELSE}
@@ -23,30 +23,32 @@ uses
 type
   TFirebirdEngineTest = class sealed(TTestCase)
   strict private
+    _Settings: IConnectionSettings;
     _DatabaseEngine: IDatabaseEngine;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
   published
-    procedure OpendatasetReturnDataset;
+    procedure ExecuteReturningReturnDataset;
     procedure IsConnectedIsTrue;
     procedure IsConnectedIsFalse;
     procedure ExecuteReturnFailedExecution;
     procedure ExecuteReturningReturnGeneratedID;
+    procedure ExecuteReturningReturnGeneratedID2;
     procedure UseGlobalTransactionAndRollbackNotReturnRecords;
     procedure PrivateTransactionAutoCommitReturnRecord;
   end;
 
 implementation
 
-procedure TFirebirdEngineTest.OpendatasetReturnDataset;
+procedure TFirebirdEngineTest.ExecuteReturningReturnDataset;
 var
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
   SQL: String;
 begin
   SQL := 'select rdb$relation_name from rdb$relations where rdb$view_blr is null and (rdb$system_flag is null or rdb$system_flag = 0)';
-  ExecutionResult := _DatabaseEngine.OpenDataset(SQL);
+  ExecutionResult := _DatabaseEngine.ExecuteReturning(TStatement.New(SQL), False);
   CheckFalse(ExecutionResult.Failed);
   if Supports(ExecutionResult, IDatasetExecution) then
   begin
@@ -64,11 +66,11 @@ procedure TFirebirdEngineTest.ExecuteReturnFailedExecution;
 var
   ExecutionResult: IExecutionResult;
 begin
-  ExecutionResult := _DatabaseEngine.Execute('INSERT INTO UNKNOWN(ID) VALUES (1)');
+  ExecutionResult := _DatabaseEngine.Execute(TStatement.New('INSERT INTO UNKNOWN(ID) VALUES (1)'));
   CheckTrue(ExecutionResult.Failed);
   CheckTrue(Supports(ExecutionResult, IFailedExecution));
   CheckEquals
-    ('SQL Error: Dynamic SQL ErrorSQL error code = -204Table unknownUNKNOWNAt line 1, column 13. Error Code: -204. Undefined name The SQL: INSERT INTO UNKNOWN(ID) VALUES (1); ',
+    ('SQL Error: Dynamic SQL ErrorSQL error code = -204Table unknownUNKNOWNAt line 1, column 13. Error Code: -204. Undefined name The SQL: INSERT INTO UNKNOWN(ID) VALUES (1);; ',
     (ExecutionResult as IFailedExecution).Message);
 end;
 
@@ -76,6 +78,7 @@ procedure TFirebirdEngineTest.IsConnectedIsFalse;
 begin
   CheckTrue(_DatabaseEngine.Disconnect);
   CheckFalse(_DatabaseEngine.IsConnected);
+  _DatabaseEngine.Connect(_Settings);
 end;
 
 procedure TFirebirdEngineTest.IsConnectedIsTrue;
@@ -88,7 +91,23 @@ var
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
 begin
-  ExecutionResult := _DatabaseEngine.ExecuteReturning('INSERT INTO TEMP_TEST(name) VALUES (''test'') RETURNING ID');
+  ExecutionResult := _DatabaseEngine.ExecuteReturning
+    (TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (''test'') RETURNING ID'), True);
+  CheckFalse(ExecutionResult.Failed);
+  CheckTrue(Supports(ExecutionResult, IDatasetExecution));
+  Dataset := (ExecutionResult as IDatasetExecution).Dataset;
+  CheckTrue(Assigned(Dataset));
+  CheckFalse(Dataset.IsEmpty);
+  CheckEquals(100, Dataset.FieldByName('id').AsInteger);
+end;
+
+procedure TFirebirdEngineTest.ExecuteReturningReturnGeneratedID2;
+var
+  ExecutionResult: IExecutionResult;
+  Dataset: TDataSet;
+begin
+  ExecutionResult := _DatabaseEngine.ExecuteReturning
+    (TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (:name) RETURNING ID'), True);
   CheckFalse(ExecutionResult.Failed);
   CheckTrue(Supports(ExecutionResult, IDatasetExecution));
   Dataset := (ExecutionResult as IDatasetExecution).Dataset;
@@ -105,16 +124,16 @@ begin
   _DatabaseEngine.BeginTransaction;
   CheckTrue(_DatabaseEngine.InTransaction);
   try
-    ExecutionResult := _DatabaseEngine.Execute('INSERT INTO TEMP_TEST(name) VALUES (''a'')', True);
+    ExecutionResult := _DatabaseEngine.Execute(TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (''a'')'), True);
     CheckEquals(1, (ExecutionResult as ISuccededExecution).AffectedRows);
-    ExecutionResult := _DatabaseEngine.Execute('INSERT INTO TEMP_TEST(name) VALUES (''b'')', True);
+    ExecutionResult := _DatabaseEngine.Execute(TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (''b'')'), True);
     CheckEquals(1, (ExecutionResult as ISuccededExecution).AffectedRows);
-    ExecutionResult := _DatabaseEngine.Execute('INSERT INTO TEMP_TEST(name) VALUES (''c'')', True);
+    ExecutionResult := _DatabaseEngine.Execute(TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (''c'')'), True);
     CheckEquals(1, (ExecutionResult as ISuccededExecution).AffectedRows);
   finally
     _DatabaseEngine.RollbackTransaction;
   end;
-  ExecutionResult := _DatabaseEngine.OpenDataset('SELECT * FROM TEMP_TEST');
+  ExecutionResult := _DatabaseEngine.ExecuteReturning(TStatement.New('SELECT * FROM TEMP_TEST'), False);
   if Supports(ExecutionResult, IDatasetExecution) then
     CheckTrue((ExecutionResult as IDatasetExecution).Dataset.IsEmpty);
 end;
@@ -124,52 +143,51 @@ var
   ExecutionResult: IExecutionResult;
 begin
   CheckFalse(_DatabaseEngine.InTransaction);
-  ExecutionResult := _DatabaseEngine.Execute('INSERT INTO TEMP_TEST(name) VALUES (''a'')', False);
+  ExecutionResult := _DatabaseEngine.Execute(TStatement.New('INSERT INTO TEMP_TEST(name) VALUES (''a'')'), False);
   CheckFalse(_DatabaseEngine.InTransaction);
   CheckEquals(1, (ExecutionResult as ISuccededExecution).AffectedRows);
-  ExecutionResult := _DatabaseEngine.OpenDataset('SELECT * FROM TEMP_TEST');
+  ExecutionResult := _DatabaseEngine.ExecuteReturning(TStatement.New('SELECT * FROM TEMP_TEST'), False);
   if Supports(ExecutionResult, IDatasetExecution) then
     CheckFalse((ExecutionResult as IDatasetExecution).Dataset.IsEmpty);
 end;
 
 procedure TFirebirdEngineTest.SetUp;
 const
-  DEPENDS_PATH = '..\..\..\..\dependencies\';
+  DEPENDS_PATH = '..\..\..\dependencies\';
 var
-  Login: IDatabaseLogin;
+  LibPath: WideString;
 begin
   inherited;
-  Login := TDatabaseLogin.New('sysdba', 'masterkey');
 {$IFDEF WIN64}
-  Login.Parameters.Add(TConnectionParam.New('LIB_PATH', DEPENDS_PATH + 'Firebird25x64\fbembed.dll'));
+  LibPath := DEPENDS_PATH + 'Firebird25x64\fbembed.dll';
 {$ELSE}
-  Login.Parameters.Add(TConnectionParam.New('LIB_PATH', DEPENDS_PATH + 'Firebird25x32\fbembed.dll'));
+  LibPath := DEPENDS_PATH + 'Firebird25x32\fbembed.dll';
 {$ENDIF}
-  Login.Parameters.Add(TConnectionParam.New('ENGINE', 'Firebird'));
-  Login.Parameters.Add(TConnectionParam.New('DB_PATH', DEPENDS_PATH + 'TEST.FDB'));
-  Login.Parameters.Add(TConnectionParam.New('DIALECT', '3'));
-  Login.Parameters.Add(TConnectionParam.New('CHARSET', 'ISO8859_1'));
+  _Settings := TFirebirdSettings.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
   _DatabaseEngine := TFirebirdEngine.New;
-  CheckTrue(_DatabaseEngine.Connect(Login));
-  _DatabaseEngine.ExecuteScript([ //
-    'create table TEMP_TEST (ID int not null primary key, name varchar(50))', //
-    'CREATE GENERATOR SQ_TEMP_TEST', 'SET GENERATOR SQ_TEMP_TEST TO 99', //
-    'SET TERM ^ ;', //
-    'CREATE TRIGGER TG_TEMP_TEST for TEMP_TEST' + sLineBreak + //
+  CheckTrue(_DatabaseEngine.Connect(_Settings));
+  _DatabaseEngine.ExecuteScript(TStatementList.NewByArray([ //
+    TStatement.New('BEGIN TRANSACTION'), //
+    TStatement.New('create table TEMP_TEST (ID int not null primary key, name varchar(50))'), //
+    TStatement.New('CREATE GENERATOR SQ_TEMP_TEST'), TStatement.New('SET GENERATOR SQ_TEMP_TEST TO 99'), //
+    TStatement.New('CREATE TRIGGER TG_TEMP_TEST for TEMP_TEST' + sLineBreak + //
     'active before insert position 0 as' + sLineBreak + //
     'begin' + sLineBreak + //
     ' if (new.id is null) then' + sLineBreak + //
     ' begin' + sLineBreak + //
     '  new.id = gen_id(SQ_TEMP_TEST, 1);' + sLineBreak + //
     ' end' + sLineBreak + //
-    'end ^', //
-    'SET TERM ; ^']);
+    'end'), //
+    TStatement.New('COMMIT') //
+    ]));
 end;
 
 procedure TFirebirdEngineTest.TearDown;
 begin
   inherited;
-  _DatabaseEngine.ExecuteScript(['drop trigger TG_TEMP_TEST', 'drop table TEMP_TEST', 'DROP GENERATOR SQ_TEMP_TEST']);
+  _DatabaseEngine.ExecuteScript(TStatementList.NewByArray([TStatement.New('BEGIN TRANSACTION'),
+    TStatement.New('drop trigger TG_TEMP_TEST'), TStatement.New('drop table TEMP_TEST'),
+    TStatement.New('DROP GENERATOR SQ_TEMP_TEST'), TStatement.New('COMMIT')]));
   CheckTrue(_DatabaseEngine.Disconnect);
 end;
 
