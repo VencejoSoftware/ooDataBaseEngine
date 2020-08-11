@@ -11,7 +11,7 @@ uses
   SysUtils,
   Credential,
   Server,
-  ConnectionSettings,
+  ConnectionSetting,
 {$IFDEF FPC}
   fpcunit, testregistry
 {$ELSE}
@@ -19,7 +19,7 @@ uses
 {$ENDIF};
 
 type
-  TConnectionSettingsTest = class sealed(TTestCase)
+  TConnectionSettingTest = class sealed(TTestCase)
   published
     procedure CredentialAreAlbertoAnd1234Pass;
     procedure StorageNameIsCDATABASE;
@@ -29,40 +29,40 @@ type
 
 implementation
 
-procedure TConnectionSettingsTest.CredentialAreAlbertoAnd1234Pass;
+procedure TConnectionSettingTest.CredentialAreAlbertoAnd1234Pass;
 var
-  ConnectionSettings: IConnectionSettings;
+  ConnectionSetting: IConnectionSetting;
 begin
-  ConnectionSettings := TConnectionSettings.New(TCredential.New('Alberto', '2134Pass'), EmptyStr, EmptyStr,
+  ConnectionSetting := TConnectionSetting.New(TCredential.New('Alberto', '2134Pass'), EmptyStr, EmptyStr,
     TServer.New('Localhost', 0));
-  CheckEquals('Alberto', ConnectionSettings.Credential.User);
-  CheckEquals('2134Pass', ConnectionSettings.Credential.Password);
+  CheckEquals('Alberto', ConnectionSetting.Credential.User);
+  CheckEquals('2134Pass', ConnectionSetting.Credential.Password);
 end;
 
-procedure TConnectionSettingsTest.ServerIsLocalhostAndPortIsZero;
+procedure TConnectionSettingTest.ServerIsLocalhostAndPortIsZero;
 var
-  Settings: IConnectionSettings;
+  Setting: IConnectionSetting;
 begin
-  Settings := TConnectionSettings.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\', 'fbclient.dll',
+  Setting := TConnectionSetting.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\', 'fbclient.dll',
     TServer.New('localhost', 0));
-  CheckEquals('localhost', Settings.Server.Address);
-  CheckEquals(0, Settings.Server.Port);
+  CheckEquals('localhost', Setting.Server.Address);
+  CheckEquals(0, Setting.Server.Port);
 end;
 
-procedure TConnectionSettingsTest.StorageNameIsCDATABASE;
+procedure TConnectionSettingTest.StorageNameIsCDATABASE;
 begin
-  CheckEquals('C:\database\', TConnectionSettings.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\',
-    EmptyStr, TServer.New('Localhost', 0)).StorageName);
+  CheckEquals('C:\database\', TConnectionSetting.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\', EmptyStr,
+    TServer.New('Localhost', 0)).StorageName);
 end;
 
-procedure TConnectionSettingsTest.LibraryPathIsFbClientDll;
+procedure TConnectionSettingTest.LibraryPathIsFbClientDll;
 begin
-  CheckEquals('fbclient.dll', TConnectionSettings.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\',
+  CheckEquals('fbclient.dll', TConnectionSetting.New(TCredential.New('Alberto', '2134Pass'), 'C:\database\',
     'fbclient.dll', TServer.New('Localhost', 0)).LibraryPath);
 end;
 
 initialization
 
-RegisterTest(TConnectionSettingsTest {$IFNDEF FPC}.Suite {$ENDIF});
+RegisterTest(TConnectionSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
 
 end.

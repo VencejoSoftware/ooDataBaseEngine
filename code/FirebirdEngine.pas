@@ -17,7 +17,7 @@ interface
 uses
   SysUtils,
   ZDbcIntfs,
-  ConnectionSettings, FirebirdSettings,
+  ConnectionSetting, FirebirdSetting,
   DatabaseEngine,
   ZeosDatabaseEngine;
 
@@ -32,23 +32,23 @@ type
 {$ENDREGION}
   TFirebirdEngine = class sealed(TZeosEngine)
   public
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean; override;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean; override;
     class function New: IDatabaseEngine;
   end;
 
 implementation
 
-function TFirebirdEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+function TFirebirdEngine.Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
 var
-  FirebirdSettings: IFirebirdSettings;
+  FirebirdSetting: IFirebirdSetting;
 begin
-  inherited Connect(Settings, PasswordKey);
-  FirebirdSettings := (Settings as IFirebirdSettings);
-  Database.Protocol := FirebirdSettings.Version;
-  Database.Properties.Values['dialect'] := IntToStr(FirebirdSettings.Dialect);
-  Database.ClientCodepage := FirebirdSettings.Collation;
-  Database.Properties.Add('lc_ctype=' + FirebirdSettings.Collation);
-  Database.Properties.Add('Codepage=' + FirebirdSettings.Collation);
+  inherited Connect(Setting, PasswordKey);
+  FirebirdSetting := (Setting as IFirebirdSetting);
+  Database.Protocol := FirebirdSetting.Version;
+  Database.Properties.Values['dialect'] := IntToStr(FirebirdSetting.Dialect);
+  Database.ClientCodepage := FirebirdSetting.Collation;
+  Database.Properties.Add('lc_ctype=' + FirebirdSetting.Collation);
+  Database.Properties.Add('Codepage=' + FirebirdSetting.Collation);
   Database.Properties.Add('isc_tpb_concurrency');
   Database.Properties.Add('isc_tpb_nowait');
   Database.Properties.Add('isc_tpb_read_committed');

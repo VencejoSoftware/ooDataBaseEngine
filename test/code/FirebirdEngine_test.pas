@@ -13,7 +13,7 @@ uses
   Statement,
   FailedExecution, SuccededExecution, ExecutionResult, DatasetExecution,
   DatabaseEngine, FirebirdEngine,
-  Server, Credential, ConnectionSettings, FirebirdSettings,
+  Server, Credential, ConnectionSetting, FirebirdSetting,
 {$IFDEF FPC}
   fpcunit, testregistry
 {$ELSE}
@@ -23,7 +23,7 @@ uses
 type
   TFirebirdEngineTest = class sealed(TTestCase)
   strict private
-    _Settings: IConnectionSettings;
+    _Setting: IConnectionSetting;
     _DatabaseEngine: IDatabaseEngine;
   protected
     procedure SetUp; override;
@@ -78,7 +78,7 @@ procedure TFirebirdEngineTest.IsConnectedIsFalse;
 begin
   CheckTrue(_DatabaseEngine.Disconnect);
   CheckFalse(_DatabaseEngine.IsConnected);
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
 end;
 
 procedure TFirebirdEngineTest.IsConnectedIsTrue;
@@ -163,9 +163,9 @@ begin
 {$ELSE}
   LibPath := DEPENDS_PATH + 'Firebird25x32\fbembed.dll';
 {$ENDIF}
-  _Settings := TFirebirdSettings.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
+  _Setting := TFirebirdSetting.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
   _DatabaseEngine := TFirebirdEngine.New;
-  CheckTrue(_DatabaseEngine.Connect(_Settings));
+  CheckTrue(_DatabaseEngine.Connect(_Setting));
   _DatabaseEngine.ExecuteScript(TStatementList.NewByArray([ //
     TStatement.New('BEGIN TRANSACTION'), //
     TStatement.New('create table TEMP_TEST (ID int not null primary key, name varchar(50))'), //

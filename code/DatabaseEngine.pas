@@ -16,7 +16,7 @@ interface
 
 uses
   SysUtils,
-  ConnectionSettings,
+  ConnectionSetting,
   ExecutionResult,
   Statement;
 
@@ -59,7 +59,7 @@ type
   )
   @member(
     Connect Try to login into database
-    @param(Login @link(IConnectionSettings Connection settings object))
+    @param(Login @link(IConnectionSetting Connection Setting object))
     @param(PasswordKey Key to reveal encrypted password)
     @return(@true if connection is done, @false if fail)
   )
@@ -99,7 +99,7 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False): IExecutionResult;

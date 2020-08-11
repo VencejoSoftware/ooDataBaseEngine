@@ -10,7 +10,7 @@ interface
 uses
   SysUtils,
   DataStorage,
-  ConnectionSettings, ConnectionSettingsFactory,
+  ConnectionSetting, ConnectionSettingFactory,
   XorCipher,
 {$IFDEF FPC}
   fpcunit, testregistry
@@ -19,7 +19,7 @@ uses
 {$ENDIF};
 
 type
-  TConnectionSettingsFactoryTest = class sealed(TTestCase)
+  TConnectionSettingFactoryTest = class sealed(TTestCase)
   const
     DEPENDS_PATH = '..\..\..\dependencies\';
   strict private
@@ -34,47 +34,47 @@ type
 
 implementation
 
-procedure TConnectionSettingsFactoryTest.BuildReturnObject;
+procedure TConnectionSettingFactoryTest.BuildReturnObject;
 var
-  ConnectionSettingsFactory: IConnectionSettingsFactory;
-  ConnectionSettings: IConnectionSettings;
+  ConnectionSettingFactory: IConnectionSettingFactory;
+  ConnectionSetting: IConnectionSetting;
 begin
-  ConnectionSettingsFactory := TConnectionSettingsFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
-  ConnectionSettings := ConnectionSettingsFactory.Build('FirebirdEngine', _DataStorage);
-  CheckTrue(Assigned(ConnectionSettings));
-  CheckEquals(DEPENDS_PATH + 'TEST.FDB', ConnectionSettings.StorageName);
-  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSettings.LibraryPath);
-  CheckEquals('sysdba', ConnectionSettings.Credential.User);
-  CheckEquals('6F63727564736A6478', ConnectionSettings.Credential.Password);
-  CheckEquals('localhost', ConnectionSettings.Server.Address);
-  CheckEquals(3050, ConnectionSettings.Server.Port);
+  ConnectionSettingFactory := TConnectionSettingFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
+  ConnectionSetting := ConnectionSettingFactory.Build('FirebirdEngine', _DataStorage);
+  CheckTrue(Assigned(ConnectionSetting));
+  CheckEquals(DEPENDS_PATH + 'TEST.FDB', ConnectionSetting.StorageName);
+  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSetting.LibraryPath);
+  CheckEquals('sysdba', ConnectionSetting.Credential.User);
+  CheckEquals('6F63727564736A6478', ConnectionSetting.Credential.Password);
+  CheckEquals('localhost', ConnectionSetting.Server.Address);
+  CheckEquals(3050, ConnectionSetting.Server.Port);
 end;
 
-procedure TConnectionSettingsFactoryTest.BuildWithOutCipherReturnObject;
+procedure TConnectionSettingFactoryTest.BuildWithOutCipherReturnObject;
 var
-  ConnectionSettingsFactory: IConnectionSettingsFactory;
-  ConnectionSettings: IConnectionSettings;
+  ConnectionSettingFactory: IConnectionSettingFactory;
+  ConnectionSetting: IConnectionSetting;
 begin
-  ConnectionSettingsFactory := TConnectionSettingsFactory.New(nil);
-  ConnectionSettings := ConnectionSettingsFactory.Build('FirebirdEngine', _DataStorage);
-  CheckTrue(Assigned(ConnectionSettings));
-  CheckEquals(DEPENDS_PATH + 'TEST.FDB', ConnectionSettings.StorageName);
-  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSettings.LibraryPath);
-  CheckEquals('sysdba', ConnectionSettings.Credential.User);
-  CheckEquals('masterkey', ConnectionSettings.Credential.Password);
-  CheckEquals('localhost', ConnectionSettings.Server.Address);
-  CheckEquals(3050, ConnectionSettings.Server.Port);
+  ConnectionSettingFactory := TConnectionSettingFactory.New(nil);
+  ConnectionSetting := ConnectionSettingFactory.Build('FirebirdEngine', _DataStorage);
+  CheckTrue(Assigned(ConnectionSetting));
+  CheckEquals(DEPENDS_PATH + 'TEST.FDB', ConnectionSetting.StorageName);
+  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSetting.LibraryPath);
+  CheckEquals('sysdba', ConnectionSetting.Credential.User);
+  CheckEquals('masterkey', ConnectionSetting.Credential.Password);
+  CheckEquals('localhost', ConnectionSetting.Server.Address);
+  CheckEquals(3050, ConnectionSetting.Server.Port);
 end;
 
-procedure TConnectionSettingsFactoryTest.BuildEmptyValuesReturnException;
+procedure TConnectionSettingFactoryTest.BuildEmptyValuesReturnException;
 var
-  ConnectionSettingsFactory: IConnectionSettingsFactory;
+  ConnectionSettingFactory: IConnectionSettingFactory;
   Failed: Boolean;
 begin
   Failed := False;
-  ConnectionSettingsFactory := TConnectionSettingsFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
+  ConnectionSettingFactory := TConnectionSettingFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
   try
-    ConnectionSettingsFactory.Build('unknown', _DataStorage);
+    ConnectionSettingFactory.Build('unknown', _DataStorage);
   except
     on E: EDataStorage do
     begin
@@ -85,14 +85,14 @@ begin
   CheckTrue(Failed);
 end;
 
-procedure TConnectionSettingsFactoryTest.SetUp;
+procedure TConnectionSettingFactoryTest.SetUp;
 begin
   inherited;
-  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
+  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Setting.ini');
 end;
 
 initialization
 
-RegisterTests('Connection settings test', [TConnectionSettingsFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Connection Setting test', [TConnectionSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

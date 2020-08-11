@@ -9,7 +9,7 @@ interface
 
 uses
   SysUtils,
-  SQLiteSettings,
+  SQLiteSetting,
 {$IFDEF FPC}
   fpcunit, testregistry
 {$ELSE}
@@ -17,7 +17,7 @@ uses
 {$ENDIF};
 
 type
-  TSQLiteSettingsTest = class sealed(TTestCase)
+  TSQLiteSettingTest = class sealed(TTestCase)
   published
     procedure EmbededUserIsEmpty;
     procedure EmbededPasswordIsEmpty;
@@ -27,28 +27,28 @@ type
 
 implementation
 
-procedure TSQLiteSettingsTest.EmbededUserIsEmpty;
+procedure TSQLiteSettingTest.EmbededUserIsEmpty;
 begin
-  CheckEquals(EmptyStr, TSQLiteSettings.NewEmbedded(EmptyStr, EmptyStr).Credential.User);
+  CheckEquals(EmptyStr, TSQLiteSetting.NewEmbedded(EmptyStr, EmptyStr).Credential.User);
 end;
 
-procedure TSQLiteSettingsTest.EmbededPasswordIsEmpty;
+procedure TSQLiteSettingTest.EmbededPasswordIsEmpty;
 begin
-  CheckEquals(EmptyStr, TSQLiteSettings.NewEmbedded(EmptyStr, EmptyStr).Credential.Password);
+  CheckEquals(EmptyStr, TSQLiteSetting.NewEmbedded(EmptyStr, EmptyStr).Credential.Password);
 end;
 
-procedure TSQLiteSettingsTest.EmbededStorageNameIsdb_sqlitedb3;
+procedure TSQLiteSettingTest.EmbededStorageNameIsdb_sqlitedb3;
 begin
-  CheckEquals('db_sqlite.db3', TSQLiteSettings.NewEmbedded('db_sqlite.db3', EmptyStr).StorageName);
+  CheckEquals('db_sqlite.db3', TSQLiteSetting.NewEmbedded('db_sqlite.db3', EmptyStr).StorageName);
 end;
 
-procedure TSQLiteSettingsTest.EmbededLibraryPathIsSQLite3dll;
+procedure TSQLiteSettingTest.EmbededLibraryPathIsSQLite3dll;
 begin
-  CheckEquals('sqlite3.dll', TSQLiteSettings.NewEmbedded(EmptyStr, 'sqlite3.dll').LibraryPath);
+  CheckEquals('sqlite3.dll', TSQLiteSetting.NewEmbedded(EmptyStr, 'sqlite3.dll').LibraryPath);
 end;
 
 initialization
 
-RegisterTest(TSQLiteSettingsTest {$IFNDEF FPC}.Suite {$ENDIF});
+RegisterTest(TSQLiteSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
 
 end.

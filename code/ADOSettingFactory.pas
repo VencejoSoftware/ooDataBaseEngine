@@ -1,4 +1,4 @@
-unit ADOSettingsFactory;
+unit ADOSettingFactory;
 
 interface
 

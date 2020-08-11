@@ -16,7 +16,7 @@ interface
 
 uses
   ExecutionResult,
-  ConnectionSettings, SQLiteSettings,
+  ConnectionSetting, SQLiteSetting,
   DatabaseEngine,
   Statement,
   ZeosDatabaseEngine;
@@ -32,20 +32,20 @@ type
 {$ENDREGION}
   TSQLiteEngine = class sealed(TZeosEngine)
   public
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean; override;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean; override;
     class function New: IDatabaseEngine;
   end;
 
 implementation
 
-function TSQLiteEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+function TSQLiteEngine.Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
 var
-  SQLiteSettings: ISQLiteSettings;
+  SQLiteSetting: ISQLiteSetting;
 begin
-  inherited Connect(Settings, PasswordKey);
-  SQLiteSettings := (Settings as ISQLiteSettings);
+  inherited Connect(Setting, PasswordKey);
+  SQLiteSetting := (Setting as ISQLiteSetting);
   Database.Protocol := 'sqlite-3';
-  Database.ClientCodepage := SQLiteSettings.Charset;
+  Database.ClientCodepage := SQLiteSetting.Charset;
   Database.Connect;
   Result := IsConnected;
 end;

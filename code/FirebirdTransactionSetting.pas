@@ -10,7 +10,7 @@
   @author Vencejo Software <www.vencejosoft.com>
 }
 {$ENDREGION}
-unit FirebirdTransactionSettings;
+unit FirebirdTransactionSetting;
 
 interface
 
@@ -124,7 +124,7 @@ type
 }
 {$ENDREGION}
 
-  IFirebirdTransactionSettings = interface
+  IFirebirdTransactionSetting = interface
     ['{A4FBF688-BE4A-4CB1-9D8A-270B9D63F02E}']
     function IsolationLevel: TFirebirdTransactionIsolationLevel;
     function AccessMode: TFirebirdTransactionAccessMode;
@@ -137,14 +137,14 @@ type
 
 {$REGION 'documentation'}
 {
-  @abstract(Implementation of @link(IFirebirdTransactionSettings))
-  @member(IsolationLevel @seealso(IConnectionSettings.IsolationLevel))
-  @member(AccessMode @seealso(IConnectionSettings.AccessMode))
-  @member(LockResolution @seealso(IConnectionSettings.LockResolution))
-  @member(TableReservation @seealso(IConnectionSettings.TableReservation))
-  @member(RecordVersion @seealso(IFirebirdSettings.RecordVersion))
-  @member(ExtraOptions @seealso(IFirebirdSettings.ExtraOptions))
-  @member(ToStringArray @seealso(IFirebirdSettings.ToStringArray))
+  @abstract(Implementation of @link(IFirebirdTransactionSetting))
+  @member(IsolationLevel @seealso(IFirebirdTransactionSetting.IsolationLevel))
+  @member(AccessMode @seealso(IFirebirdTransactionSetting.AccessMode))
+  @member(LockResolution @seealso(IFirebirdTransactionSetting.LockResolution))
+  @member(TableReservation @seealso(IFirebirdTransactionSetting.TableReservation))
+  @member(RecordVersion @seealso(IFirebirdTransactionSetting.RecordVersion))
+  @member(ExtraOptions @seealso(IFirebirdTransactionSetting.ExtraOptions))
+  @member(ToStringArray @seealso(IFirebirdTransactionSetting.ToStringArray))
   @member(
     Create Object constructor
     @param(IsolationLevel Isolation level)
@@ -166,7 +166,7 @@ type
 }
 {$ENDREGION}
 
-  TFirebirdTransactionSettings = class sealed(TInterfacedObject, IFirebirdTransactionSettings)
+  TFirebirdTransactionSetting = class sealed(TInterfacedObject, IFirebirdTransactionSetting)
   strict private
     _IsolationLevel: TFirebirdTransactionIsolationLevel;
     _AccessMode: TFirebirdTransactionAccessMode;
@@ -190,42 +190,42 @@ type
       const AccessMode: TFirebirdTransactionAccessMode; const LockResolution: TFirebirdTransactionLockResolution;
       const TableReservation: TFirebirdTransactionTableReservation;
       const RecordVersion: TFirebirdTransactionRecordVersion; const ExtraOptions: TFirebirdTransactionExtraSet)
-      : IFirebirdTransactionSettings;
+      : IFirebirdTransactionSetting;
   end;
 
 implementation
 
-function TFirebirdTransactionSettings.IsolationLevel: TFirebirdTransactionIsolationLevel;
+function TFirebirdTransactionSetting.IsolationLevel: TFirebirdTransactionIsolationLevel;
 begin
   Result := _IsolationLevel;
 end;
 
-function TFirebirdTransactionSettings.AccessMode: TFirebirdTransactionAccessMode;
+function TFirebirdTransactionSetting.AccessMode: TFirebirdTransactionAccessMode;
 begin
   Result := _AccessMode;
 end;
 
-function TFirebirdTransactionSettings.LockResolution: TFirebirdTransactionLockResolution;
+function TFirebirdTransactionSetting.LockResolution: TFirebirdTransactionLockResolution;
 begin
   Result := _LockResolution;
 end;
 
-function TFirebirdTransactionSettings.TableReservation: TFirebirdTransactionTableReservation;
+function TFirebirdTransactionSetting.TableReservation: TFirebirdTransactionTableReservation;
 begin
   Result := _TableReservation;
 end;
 
-function TFirebirdTransactionSettings.RecordVersion: TFirebirdTransactionRecordVersion;
+function TFirebirdTransactionSetting.RecordVersion: TFirebirdTransactionRecordVersion;
 begin
   Result := _RecordVersion;
 end;
 
-function TFirebirdTransactionSettings.ExtraOptions: TFirebirdTransactionExtraSet;
+function TFirebirdTransactionSetting.ExtraOptions: TFirebirdTransactionExtraSet;
 begin
   Result := _ExtraOptions;
 end;
 
-function TFirebirdTransactionSettings.ToStringArray: TFirebirdTransactionParams;
+function TFirebirdTransactionSetting.ToStringArray: TFirebirdTransactionParams;
 const
   ISOLATION_LEVEL: array [TFirebirdTransactionIsolationLevel] of string = ('isc_tpb_read_committed',
     'isc_tpb_concurrency', 'isc_tpb_consistency');
@@ -255,7 +255,7 @@ begin
     end;
 end;
 
-constructor TFirebirdTransactionSettings.Create(const IsolationLevel: TFirebirdTransactionIsolationLevel;
+constructor TFirebirdTransactionSetting.Create(const IsolationLevel: TFirebirdTransactionIsolationLevel;
   const AccessMode: TFirebirdTransactionAccessMode; const LockResolution: TFirebirdTransactionLockResolution;
   const TableReservation: TFirebirdTransactionTableReservation; const RecordVersion: TFirebirdTransactionRecordVersion;
   const ExtraOptions: TFirebirdTransactionExtraSet);
@@ -268,12 +268,12 @@ begin
   _ExtraOptions := ExtraOptions;
 end;
 
-class function TFirebirdTransactionSettings.New(const IsolationLevel: TFirebirdTransactionIsolationLevel;
+class function TFirebirdTransactionSetting.New(const IsolationLevel: TFirebirdTransactionIsolationLevel;
   const AccessMode: TFirebirdTransactionAccessMode; const LockResolution: TFirebirdTransactionLockResolution;
   const TableReservation: TFirebirdTransactionTableReservation; const RecordVersion: TFirebirdTransactionRecordVersion;
-  const ExtraOptions: TFirebirdTransactionExtraSet): IFirebirdTransactionSettings;
+  const ExtraOptions: TFirebirdTransactionExtraSet): IFirebirdTransactionSetting;
 begin
-  Result := TFirebirdTransactionSettings.Create(IsolationLevel, AccessMode, LockResolution, TableReservation,
+  Result := TFirebirdTransactionSetting.Create(IsolationLevel, AccessMode, LockResolution, TableReservation,
     RecordVersion, ExtraOptions);
 end;
 

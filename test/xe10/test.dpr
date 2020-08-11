@@ -29,14 +29,14 @@ uses
   Credential in '..\..\code\Credential.pas',
   Credential_test in '..\code\Credential_test.pas',
   Statement in '..\..\code\Statement.pas',
-  FirebirdSettings in '..\..\code\FirebirdSettings.pas',
-  ConnectionSettings in '..\..\code\ConnectionSettings.pas',
+  FirebirdSetting in '..\..\code\FirebirdSetting.pas',
+  ConnectionSetting in '..\..\code\ConnectionSetting.pas',
   SQLiteSettings_test in '..\code\SQLiteSettings_test.pas',
-  FirebirdSettings_test in '..\code\FirebirdSettings_test.pas',
+  FirebirdSetting_test in '..\code\FirebirdSetting_test.pas',
   ConnectionSettings_test in '..\code\ConnectionSettings_test.pas',
   Server in '..\..\code\Server.pas',
-  SQLiteSettings in '..\..\code\SQLiteSettings.pas',
-  ConnectionSettingsFactory in '..\..\code\ConnectionSettingsFactory.pas',
+  SQLiteSetting in '..\..\code\SQLiteSetting.pas',
+  ConnectionSettingFactory in '..\..\code\ConnectionSettingFactory.pas',
   DataStorage in '..\..\code\DataStorage.pas',
   ServerFactory in '..\..\code\ServerFactory.pas',
   DataStorage_test in '..\code\DataStorage_test.pas',
@@ -44,20 +44,20 @@ uses
   CredentialFactory in '..\..\code\CredentialFactory.pas',
   CredentialFactory_test in '..\code\CredentialFactory_test.pas',
   ConnectionSettingsFactory_test in '..\code\ConnectionSettingsFactory_test.pas',
-  SQLiteSettingsFactory in '..\..\code\SQLiteSettingsFactory.pas',
+  SQLiteSettingFactory in '..\..\code\SQLiteSettingFactory.pas',
   SQLiteSettingsFactory_test in '..\code\SQLiteSettingsFactory_test.pas',
-  FirebirdSettingsFactory_test in '..\code\FirebirdSettingsFactory_test.pas',
+  FirebirdSettingFactory_test in '..\code\FirebirdSettingFactory_test.pas',
   Server_test in '..\code\Server_test.pas',
   CryptedCredential in '..\..\code\CryptedCredential.pas',
   CryptedCredential_test in '..\code\CryptedCredential_test.pas',
-  ADOSettings in '..\..\code\ADOSettings.pas',
-  ADOSettingsFactory in '..\..\code\ADOSettingsFactory.pas',
-  FirebirdSettingsFactory in '..\..\code\FirebirdSettingsFactory.pas',
-  FirebirdTransactionSettingsFactory in '..\..\code\FirebirdTransactionSettingsFactory.pas',
-  FirebirdTransactionSettings in '..\..\code\FirebirdTransactionSettings.pas',
-  FirebirdTransactionSettings_test in '..\code\FirebirdTransactionSettings_test.pas';
+  ADOSetting in '..\..\code\ADOSetting.pas',
+  ADOSettingFactory in '..\..\code\ADOSettingFactory.pas',
+  FirebirdSettingFactory in '..\..\code\FirebirdSettingFactory.pas',
+  FirebirdTransactionSettingFactory in '..\..\code\FirebirdTransactionSettingFactory.pas',
+  FirebirdTransactionSetting in '..\..\code\FirebirdTransactionSetting.pas',
+  FirebirdTransactionSetting_test in '..\code\FirebirdTransactionSetting_test.pas';
 
-{R *.RES}
+{ R *.RES }
 
 begin
   Run;

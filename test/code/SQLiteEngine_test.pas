@@ -10,7 +10,7 @@ interface
 uses
   SysUtils, DB,
   Statement,
-  ConnectionSettings, SQLiteSettings,
+  ConnectionSetting, SQLiteSetting,
   ExecutionResult, SuccededExecution, DatasetExecution,
   DatabaseEngine, SQLiteEngine,
 {$IFDEF FPC}
@@ -30,7 +30,7 @@ type
       'INSERT INTO TEST_TABLE (TEST_FIELD) VALUES (''TestVal1'');' + sLineBreak + //
       'INSERT INTO TEST_TABLE (TEST_FIELD) VALUES (''TestVal2'');';
   strict private
-    _Settings: IConnectionSettings;
+    _Setting: IConnectionSetting;
     _DatabaseEngine: IDatabaseEngine;
   protected
     procedure SetUp; override;
@@ -50,7 +50,7 @@ implementation
 
 procedure TSQLiteEngineTest.IsConnectedToTestIsTrue;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     CheckTrue(_DatabaseEngine.IsConnected);
   finally
@@ -61,7 +61,7 @@ end;
 
 procedure TSQLiteEngineTest.SomeTransaction;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     CheckFalse(_DatabaseEngine.InTransaction);
     _DatabaseEngine.BeginTransaction;
@@ -82,7 +82,7 @@ var
   Failed: Boolean;
   StatementList: IStatementList;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   Failed := False;
   try
     try
@@ -106,7 +106,7 @@ var
   StatementList: IStatementList;
   RowsAffected: NativeUInt;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     StatementList := TStatementList.New;
     StatementList.LoadFromText(SCRIPT);
@@ -128,7 +128,7 @@ var
   i: Integer;
   StatementList: IStatementList;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     StatementList := TStatementList.New;
     StatementList.LoadFromText(SCRIPT);
@@ -155,7 +155,7 @@ var
   ExecutionResult: IExecutionResult;
   StatementList: IStatementList;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     StatementList := TStatementList.New;
     StatementList.LoadFromText(SCRIPT);
@@ -172,7 +172,7 @@ var
   StatementList: IStatementList;
   ExecutionResult: IExecutionResult;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     StatementList := TStatementList.New;
     StatementList.LoadFromText(SCRIPT);
@@ -193,7 +193,7 @@ var
   StatementList: IStatementList;
   RowsAffected: NativeUInt;
 begin
-  _DatabaseEngine.Connect(_Settings);
+  _DatabaseEngine.Connect(_Setting);
   try
     StatementList := TStatementList.NewByArray([TStatement.New('BEGIN TRANSACTION'), TStatement.New('ROOLBACK'),
       TStatement.New('COMMIT')]);
@@ -220,15 +220,15 @@ begin
 {$ELSE}
   LibPath := DEPENDS_PATH + 'SQLite3x32\sqlite3.dll';
 {$ENDIF}
-  _Settings := TSQLiteSettings.NewEmbedded(DEPENDS_PATH + 'TEST.DB3', LibPath);
+  _Setting := TSQLiteSetting.NewEmbedded(DEPENDS_PATH + 'TEST.DB3', LibPath);
   _DatabaseEngine := TSQLiteEngine.New;
 end;
 
 procedure TSQLiteEngineTest.TearDown;
 begin
   inherited;
-  if FileExists(_Settings.StorageName) then
-    DeleteFile(_Settings.StorageName);
+  if FileExists(_Setting.StorageName) then
+    DeleteFile(_Setting.StorageName);
 end;
 
 initialization

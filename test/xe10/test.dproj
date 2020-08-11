@@ -106,14 +106,14 @@
         <DCCReference Include="..\..\code\Credential.pas"/>
         <DCCReference Include="..\code\Credential_test.pas"/>
         <DCCReference Include="..\..\code\Statement.pas"/>
-        <DCCReference Include="..\..\code\FirebirdSettings.pas"/>
-        <DCCReference Include="..\..\code\ConnectionSettings.pas"/>
+        <DCCReference Include="..\..\code\FirebirdSetting.pas"/>
+        <DCCReference Include="..\..\code\ConnectionSetting.pas"/>
         <DCCReference Include="..\code\SQLiteSettings_test.pas"/>
-        <DCCReference Include="..\code\FirebirdSettings_test.pas"/>
+        <DCCReference Include="..\code\FirebirdSetting_test.pas"/>
         <DCCReference Include="..\code\ConnectionSettings_test.pas"/>
         <DCCReference Include="..\..\code\Server.pas"/>
-        <DCCReference Include="..\..\code\SQLiteSettings.pas"/>
-        <DCCReference Include="..\..\code\ConnectionSettingsFactory.pas"/>
+        <DCCReference Include="..\..\code\SQLiteSetting.pas"/>
+        <DCCReference Include="..\..\code\ConnectionSettingFactory.pas"/>
         <DCCReference Include="..\..\code\DataStorage.pas"/>
         <DCCReference Include="..\..\code\ServerFactory.pas"/>
         <DCCReference Include="..\code\DataStorage_test.pas"/>
@@ -121,18 +121,18 @@
         <DCCReference Include="..\..\code\CredentialFactory.pas"/>
         <DCCReference Include="..\code\CredentialFactory_test.pas"/>
         <DCCReference Include="..\code\ConnectionSettingsFactory_test.pas"/>
-        <DCCReference Include="..\..\code\SQLiteSettingsFactory.pas"/>
+        <DCCReference Include="..\..\code\SQLiteSettingFactory.pas"/>
         <DCCReference Include="..\code\SQLiteSettingsFactory_test.pas"/>
-        <DCCReference Include="..\code\FirebirdSettingsFactory_test.pas"/>
+        <DCCReference Include="..\code\FirebirdSettingFactory_test.pas"/>
         <DCCReference Include="..\code\Server_test.pas"/>
         <DCCReference Include="..\..\code\CryptedCredential.pas"/>
         <DCCReference Include="..\code\CryptedCredential_test.pas"/>
-        <DCCReference Include="..\..\code\ADOSettings.pas"/>
-        <DCCReference Include="..\..\code\ADOSettingsFactory.pas"/>
-        <DCCReference Include="..\..\code\FirebirdSettingsFactory.pas"/>
-        <DCCReference Include="..\..\code\FirebirdTransactionSettingsFactory.pas"/>
-        <DCCReference Include="..\..\code\FirebirdTransactionSettings.pas"/>
-        <DCCReference Include="..\code\FirebirdTransactionSettings_test.pas"/>
+        <DCCReference Include="..\..\code\ADOSetting.pas"/>
+        <DCCReference Include="..\..\code\ADOSettingFactory.pas"/>
+        <DCCReference Include="..\..\code\FirebirdSettingFactory.pas"/>
+        <DCCReference Include="..\..\code\FirebirdTransactionSettingFactory.pas"/>
+        <DCCReference Include="..\..\code\FirebirdTransactionSetting.pas"/>
+        <DCCReference Include="..\code\FirebirdTransactionSetting_test.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -10,7 +10,7 @@
   @author Vencejo Software <www.vencejosoft.com>
 }
 {$ENDREGION}
-unit ConnectionSettingsFactory;
+unit ConnectionSettingFactory;
 
 interface
 
@@ -19,29 +19,29 @@ uses
   DataStorage,
   Server, ServerFactory,
   Credential, CredentialFactory,
-  ConnectionSettings;
+  ConnectionSetting;
 
 type
 {$REGION 'documentation'}
 {
-  @abstract(Object factory to build @link(IConnectionSettings ConnectionSettings objects))
+  @abstract(Object factory to build @link(IConnectionSetting ConnectionSetting objects))
   @member(
-    Build Construct a new @link(IConnectionSettings ConnectionSettings object)
+    Build Construct a new @link(IConnectionSetting ConnectionSetting object)
     @param(ObjectName Object name identifier)
     @param(DataStorage @link(IDataStorage DataStorage object to access external data))
-    @return(@link(IConnectionSettings ConnectionSettings object))
+    @return(@link(IConnectionSetting ConnectionSetting object))
   )
 }
 {$ENDREGION}
-  IConnectionSettingsFactory = interface
+  IConnectionSettingFactory = interface
     ['{DAEDA43C-5798-4FD7-AAD7-2347DD3DA62A}']
-    function Build(const ObjectName: WideString; const DataStorage: IDataStorage): IConnectionSettings;
+    function Build(const ObjectName: WideString; const DataStorage: IDataStorage): IConnectionSetting;
   end;
 
 {$REGION 'documentation'}
 {
-  @abstract(Implementation of @link(IConnectionSettingsFactory))
-  @member(Build @seealso(IConnectionSettingsFactory.Build))
+  @abstract(Implementation of @link(IConnectionSettingFactory))
+  @member(Build @seealso(IConnectionSettingFactory.Build))
   @member(
     Create Object constructor
     @param(Cipher Encoder/decoder for sensible data)
@@ -53,39 +53,39 @@ type
 }
 {$ENDREGION}
 
-  TConnectionSettingsFactory = class sealed(TInterfacedObject, IConnectionSettingsFactory)
+  TConnectionSettingFactory = class sealed(TInterfacedObject, IConnectionSettingFactory)
   strict private
     _ServerFactory: IServerFactory;
     _CredentialFactory: ICredentialFactory;
   public
-    function Build(const ObjectName: WideString; const DataStorage: IDataStorage): IConnectionSettings;
+    function Build(const ObjectName: WideString; const DataStorage: IDataStorage): IConnectionSetting;
     constructor Create(const Cipher: IKeyCipher);
-    class function New(const Cipher: IKeyCipher): IConnectionSettingsFactory;
+    class function New(const Cipher: IKeyCipher): IConnectionSettingFactory;
   end;
 
 implementation
 
-function TConnectionSettingsFactory.Build(const ObjectName: WideString; const DataStorage: IDataStorage)
-  : IConnectionSettings;
+function TConnectionSettingFactory.Build(const ObjectName: WideString; const DataStorage: IDataStorage)
+  : IConnectionSetting;
 var
   Credential: ICredential;
   Server: IServer;
 begin
   Credential := _CredentialFactory.Build(ObjectName, DataStorage);
   Server := _ServerFactory.Build(ObjectName, DataStorage);
-  Result := TConnectionSettings.New(Credential, DataStorage.ReadString(ObjectName, 'StorageName'),
+  Result := TConnectionSetting.New(Credential, DataStorage.ReadString(ObjectName, 'StorageName'),
     DataStorage.ReadString(ObjectName, 'LibrayPath'), Server);
 end;
 
-constructor TConnectionSettingsFactory.Create(const Cipher: IKeyCipher);
+constructor TConnectionSettingFactory.Create(const Cipher: IKeyCipher);
 begin
   _ServerFactory := TServerFactory.New;
   _CredentialFactory := TCredentialFactory.New(Cipher);
 end;
 
-class function TConnectionSettingsFactory.New(const Cipher: IKeyCipher): IConnectionSettingsFactory;
+class function TConnectionSettingFactory.New(const Cipher: IKeyCipher): IConnectionSettingFactory;
 begin
-  Result := TConnectionSettingsFactory.Create(Cipher);
+  Result := TConnectionSettingFactory.Create(Cipher);
 end;
 
 end.

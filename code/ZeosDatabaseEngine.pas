@@ -18,7 +18,7 @@ uses
   SysUtils,
   DB,
   ZConnection, ZDataset, ZDbcIntfs,
-  ConnectionSettings,
+  ConnectionSetting,
   Statement,
   CryptedCredential,
   ExecutionResult, FailedExecution, SuccededExecution, DatasetExecution,
@@ -74,7 +74,7 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean; virtual;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean; virtual;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean): IExecutionResult;
@@ -115,23 +115,23 @@ begin
   Result := True;
 end;
 
-function TZeosEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+function TZeosEngine.Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
 begin
-  if Assigned(Settings.Credential) then
+  if Assigned(Setting.Credential) then
   begin
-    Database.User := Settings.Credential.User;
-    if Supports(Settings.Credential, ICryptedCredential) then
-      Database.Password := (Settings.Credential as ICryptedCredential).RevealPassword(PasswordKey)
+    Database.User := Setting.Credential.User;
+    if Supports(Setting.Credential, ICryptedCredential) then
+      Database.Password := (Setting.Credential as ICryptedCredential).RevealPassword(PasswordKey)
     else
-      Database.Password := Settings.Credential.Password;
+      Database.Password := Setting.Credential.Password;
   end;
   Database.TransactIsolationLevel := tiReadCommitted;
-  Database.LibraryLocation := Settings.LibraryPath;
-  Database.Database := Settings.StorageName;
-  if Assigned(Settings.Server) then
+  Database.LibraryLocation := Setting.LibraryPath;
+  Database.Database := Setting.StorageName;
+  if Assigned(Setting.Server) then
   begin
-    Database.HostName := Settings.Server.Address;
-    Database.Port := Settings.Server.Port;
+    Database.HostName := Setting.Server.Address;
+    Database.Port := Setting.Server.Port;
   end;
   Database.Properties.Clear;
   Result := False;

@@ -10,7 +10,7 @@
   @author Vencejo Software <www.vencejosoft.com>
 }
 {$ENDREGION}
-unit ConnectionSettings;
+unit ConnectionSetting;
 
 interface
 
@@ -36,7 +36,7 @@ type
   )
 }
 {$ENDREGION}
-  IConnectionSettings = interface
+  IConnectionSetting = interface
     ['{4C0F6BDE-CB21-4611-B2B2-4B7CE5B30820}']
     function Credential: ICredential;
     function StorageName: WideString;
@@ -46,11 +46,11 @@ type
 
 {$REGION 'documentation'}
 {
-  @abstract(Implementation of @link(IConnectionSettings))
-  @member(Credential @seealso(IConnectionSettings.Credential))
-  @member(StorageName @seealso(IConnectionSettings.StorageName))
-  @member(LibraryPath @seealso(IConnectionSettings.LibraryPath))
-  @member(Server @seealso(IConnectionSettings.Server))
+  @abstract(Implementation of @link(IConnectionSetting))
+  @member(Credential @seealso(IConnectionSetting.Credential))
+  @member(StorageName @seealso(IConnectionSetting.StorageName))
+  @member(LibraryPath @seealso(IConnectionSetting.LibraryPath))
+  @member(Server @seealso(IConnectionSetting.Server))
   @member(
     Create Object constructor
     @param(Credential @link(ICredential Object connection credentials))
@@ -68,7 +68,7 @@ type
 }
 {$ENDREGION}
 
-  TConnectionSettings = class sealed(TInterfacedObject, IConnectionSettings)
+  TConnectionSetting = class sealed(TInterfacedObject, IConnectionSetting)
   strict private
     _Credential: ICredential;
     _StorageName, _LibraryPath: WideString;
@@ -81,32 +81,32 @@ type
     constructor Create(const Credential: ICredential; const StorageName, LibraryPath: WideString;
       const Server: IServer);
     class function New(const Credential: ICredential; const StorageName, LibraryPath: WideString; const Server: IServer)
-      : IConnectionSettings;
+      : IConnectionSetting;
   end;
 
 implementation
 
-function TConnectionSettings.Credential: ICredential;
+function TConnectionSetting.Credential: ICredential;
 begin
   Result := _Credential;
 end;
 
-function TConnectionSettings.StorageName: WideString;
+function TConnectionSetting.StorageName: WideString;
 begin
   Result := _StorageName;
 end;
 
-function TConnectionSettings.LibraryPath: WideString;
+function TConnectionSetting.LibraryPath: WideString;
 begin
   Result := _LibraryPath;
 end;
 
-function TConnectionSettings.Server: IServer;
+function TConnectionSetting.Server: IServer;
 begin
   Result := _Server;
 end;
 
-constructor TConnectionSettings.Create(const Credential: ICredential; const StorageName, LibraryPath: WideString;
+constructor TConnectionSetting.Create(const Credential: ICredential; const StorageName, LibraryPath: WideString;
   const Server: IServer);
 begin
   _Credential := Credential;
@@ -115,10 +115,10 @@ begin
   _Server := Server;
 end;
 
-class function TConnectionSettings.New(const Credential: ICredential; const StorageName, LibraryPath: WideString;
-  const Server: IServer): IConnectionSettings;
+class function TConnectionSetting.New(const Credential: ICredential; const StorageName, LibraryPath: WideString;
+  const Server: IServer): IConnectionSetting;
 begin
-  Result := TConnectionSettings.Create(Credential, StorageName, LibraryPath, Server);
+  Result := TConnectionSetting.Create(Credential, StorageName, LibraryPath, Server);
 end;
 
 end.

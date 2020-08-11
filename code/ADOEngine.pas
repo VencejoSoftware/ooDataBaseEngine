@@ -19,7 +19,7 @@ uses
   SysUtils,
   DB,
   ADODB,
-  ConnectionSettings,
+  ConnectionSetting,
   Statement,
   ExecutionResult, FailedExecution, SuccededExecution, DatasetExecution,
   DatabaseEngine;
@@ -60,7 +60,7 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean): IExecutionResult;
@@ -101,7 +101,7 @@ begin
   Result := True;
 end;
 
-function TADOEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+function TADOEngine.Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
 var
   ConnectionString: WideString;
 begin

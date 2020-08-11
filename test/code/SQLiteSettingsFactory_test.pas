@@ -10,7 +10,7 @@ interface
 uses
   SysUtils,
   DataStorage,
-  SQLiteSettings, SQLiteSettingsFactory,
+  SQLiteSetting, SQLiteSettingFactory,
 {$IFDEF FPC}
   fpcunit, testregistry
 {$ELSE}
@@ -18,12 +18,12 @@ uses
 {$ENDIF};
 
 type
-  TSQLiteSettingsFactoryTest = class sealed(TTestCase)
+  TSQLiteSettingFactoryTest = class sealed(TTestCase)
   const
     DEPENDS_PATH = '..\..\..\dependencies\';
   strict private
     _DataStorage: IDataStorage;
-    _SQLiteSettingsFactory: ISQLiteSettingsFactory;
+    _SQLiteSettingFactory: ISQLiteSettingFactory;
   protected
     procedure SetUp; override;
   published
@@ -33,26 +33,26 @@ type
 
 implementation
 
-procedure TSQLiteSettingsFactoryTest.BuildReturnObject;
+procedure TSQLiteSettingFactoryTest.BuildReturnObject;
 var
-  SQLiteSettings: ISQLiteSettings;
+  SQLiteSetting: ISQLiteSetting;
 begin
-  SQLiteSettings := _SQLiteSettingsFactory.Build('SQLiteEngine', _DataStorage);
-  CheckTrue(Assigned(SQLiteSettings));
-  CheckEquals(DEPENDS_PATH + 'TEST.db3', SQLiteSettings.StorageName);
-  CheckEquals(DEPENDS_PATH + 'SQLite3x64\sqlite3.dll', SQLiteSettings.LibraryPath);
-  CheckFalse(Assigned(SQLiteSettings.Credential));
-  CheckFalse(Assigned(SQLiteSettings.Server));
-  CheckEquals('UTF16', SQLiteSettings.CharSet);
+  SQLiteSetting := _SQLiteSettingFactory.Build('SQLiteEngine', _DataStorage);
+  CheckTrue(Assigned(SQLiteSetting));
+  CheckEquals(DEPENDS_PATH + 'TEST.db3', SQLiteSetting.StorageName);
+  CheckEquals(DEPENDS_PATH + 'SQLite3x64\sqlite3.dll', SQLiteSetting.LibraryPath);
+  CheckFalse(Assigned(SQLiteSetting.Credential));
+  CheckFalse(Assigned(SQLiteSetting.Server));
+  CheckEquals('UTF16', SQLiteSetting.CharSet);
 end;
 
-procedure TSQLiteSettingsFactoryTest.BuildEmptyValuesReturnException;
+procedure TSQLiteSettingFactoryTest.BuildEmptyValuesReturnException;
 var
   Failed: Boolean;
 begin
   Failed := False;
   try
-    _SQLiteSettingsFactory.Build('unknown', _DataStorage);
+    _SQLiteSettingFactory.Build('unknown', _DataStorage);
   except
     on E: EDataStorage do
     begin
@@ -63,15 +63,15 @@ begin
   CheckTrue(Failed);
 end;
 
-procedure TSQLiteSettingsFactoryTest.SetUp;
+procedure TSQLiteSettingFactoryTest.SetUp;
 begin
   inherited;
-  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
-  _SQLiteSettingsFactory := TSQLiteSettingsFactory.New;
+  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Setting.ini');
+  _SQLiteSettingFactory := TSQLiteSettingFactory.New;
 end;
 
 initialization
 
-RegisterTests('Connection settings test', [TSQLiteSettingsFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Connection Setting test', [TSQLiteSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.
