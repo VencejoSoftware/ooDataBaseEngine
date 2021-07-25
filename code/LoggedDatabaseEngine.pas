@@ -19,7 +19,7 @@ uses
   Log,
   LogActor,
   Statement,
-  ConnectionSettings,
+  ConnectionSetting,
   ExecutionResult,
   FailedExecution,
   DatabaseEngine;
@@ -61,7 +61,7 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = ''): Boolean;
+    function Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False): IExecutionResult;
@@ -119,14 +119,13 @@ begin
   end;
 end;
 
-function TLoggedDatabaseEngine.Connect(const Settings: IConnectionSettings; const PasswordKey: WideString = '')
-  : Boolean;
+function TLoggedDatabaseEngine.Connect(const Setting: IConnectionSetting; const PasswordKey: WideString = ''): Boolean;
 begin
   Result := False;
-  _Logactor.WriteDebug('Connection to database ' + Settings.StorageName);
+  _Logactor.WriteDebug('Connection to database ' + Setting.StorageName);
   try
-    Result := _DatabaseEngine.Connect(Settings, PasswordKey);
-    _Logactor.WriteDebug('Database connected ' + Settings.StorageName);
+    Result := _DatabaseEngine.Connect(Setting, PasswordKey);
+    _Logactor.WriteDebug('Database connected ' + Setting.StorageName);
   except
     on E: Exception do
       _Logactor.WriteException(E, True)

@@ -220,7 +220,7 @@ begin
 {$ELSE}
   LibPath := DEPENDS_PATH + 'SQLite3x32\sqlite3.dll';
 {$ENDIF}
-  _Setting := TSQLiteSetting.NewEmbedded(DEPENDS_PATH + 'TEST.DB3', LibPath);
+  _Setting := TSQLiteSetting.NewEmbedded(ExpandFileName(DEPENDS_PATH + 'TEST.DB3'), LibPath);
   _DatabaseEngine := TSQLiteEngine.New;
 end;
 
@@ -233,6 +233,6 @@ end;
 
 initialization
 
-RegisterTests('DatabaseEngine test', [TSQLiteEngineTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('SQLite test', [TSQLiteEngineTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

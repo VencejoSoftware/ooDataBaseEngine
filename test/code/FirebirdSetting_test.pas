@@ -110,6 +110,6 @@ end;
 
 initialization
 
-RegisterTest(TFirebirdSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
+RegisterTest('Firebird test', TFirebirdSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
 
 end.

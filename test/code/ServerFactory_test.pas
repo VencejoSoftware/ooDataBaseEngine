@@ -35,7 +35,7 @@ procedure TServerFactoryTest.BuildReturnObject;
 var
   Server: IServer;
 begin
-  Server := _ServerFactory.Build('FirebirdEngine', _DataStorage);
+  Server := _ServerFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(Server));
   CheckEquals('localhost', Server.Address);
   CheckEquals(3050, Server.Port);
@@ -69,6 +69,6 @@ end;
 
 initialization
 
-RegisterTests('Connection settings test', [TServerFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Connection setting test', [TServerFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

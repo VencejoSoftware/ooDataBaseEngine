@@ -163,7 +163,7 @@ begin
 {$ELSE}
   LibPath := DEPENDS_PATH + 'Firebird25x32\fbembed.dll';
 {$ENDIF}
-  _Setting := TFirebirdSetting.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
+  _Setting := TFirebirdSetting.NewEmbedded(DEPENDS_PATH + 'TEST_2_5.FDB', LibPath, 'ISO8859_1', 'Firebird');
   _DatabaseEngine := TFirebirdEngine.New;
   CheckTrue(_DatabaseEngine.Connect(_Setting));
   _DatabaseEngine.ExecuteScript(TStatementList.NewByArray([ //
@@ -193,6 +193,6 @@ end;
 
 initialization
 
-RegisterTests('DatabaseEngine test', [TFirebirdEngineTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Firebird test', [TFirebirdEngineTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

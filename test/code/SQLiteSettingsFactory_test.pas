@@ -66,12 +66,12 @@ end;
 procedure TSQLiteSettingFactoryTest.SetUp;
 begin
   inherited;
-  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Setting.ini');
+  _DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Settings.ini');
   _SQLiteSettingFactory := TSQLiteSettingFactory.New;
 end;
 
 initialization
 
-RegisterTests('Connection Setting test', [TSQLiteSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('SQLite test', [TSQLiteSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

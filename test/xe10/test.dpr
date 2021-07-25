@@ -55,7 +55,8 @@ uses
   FirebirdSettingFactory in '..\..\code\FirebirdSettingFactory.pas',
   FirebirdTransactionSettingFactory in '..\..\code\FirebirdTransactionSettingFactory.pas',
   FirebirdTransactionSetting in '..\..\code\FirebirdTransactionSetting.pas',
-  FirebirdTransactionSetting_test in '..\code\FirebirdTransactionSetting_test.pas';
+  FirebirdTransactionSetting_test in '..\code\FirebirdTransactionSetting_test.pas',
+  FirebirdTransactionSettingFactory_test in '..\code\FirebirdTransactionSettingFactory_test.pas';
 
 { R *.RES }
 

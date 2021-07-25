@@ -40,12 +40,13 @@ var
   FirebirdSetting: IFirebirdSetting;
 begin
   FirebirdSettingFactory := TFirebirdSettingFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
-  FirebirdSetting := FirebirdSettingFactory.Build('FirebirdEngine', _DataStorage);
+  FirebirdSetting := FirebirdSettingFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(FirebirdSetting));
-  CheckEquals(DEPENDS_PATH + 'TEST.FDB', FirebirdSetting.StorageName);
+  CheckEquals(DEPENDS_PATH + 'TEST_2_5.FDB', FirebirdSetting.StorageName);
   CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', FirebirdSetting.LibraryPath);
   CheckEquals('sysdba', FirebirdSetting.Credential.User);
   CheckEquals('6F63727564736A6478', FirebirdSetting.Credential.Password);
+  CheckTrue(FirebirdSetting.Credential.IsValidPassword('masterkey'));
   CheckEquals('localhost', FirebirdSetting.Server.Address);
   CheckEquals(3050, FirebirdSetting.Server.Port);
   CheckEquals('ISO8859_1', FirebirdSetting.Collation);
@@ -59,12 +60,13 @@ var
   FirebirdSetting: IFirebirdSetting;
 begin
   FirebirdSettingFactory := TFirebirdSettingFactory.New(nil);
-  FirebirdSetting := FirebirdSettingFactory.Build('FirebirdEngine', _DataStorage);
+  FirebirdSetting := FirebirdSettingFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(FirebirdSetting));
-  CheckEquals(DEPENDS_PATH + 'TEST.FDB', FirebirdSetting.StorageName);
+  CheckEquals(DEPENDS_PATH + 'TEST_2_5.FDB', FirebirdSetting.StorageName);
   CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', FirebirdSetting.LibraryPath);
   CheckEquals('sysdba', FirebirdSetting.Credential.User);
-  CheckEquals('masterkey', FirebirdSetting.Credential.Password);
+  CheckEquals('6F63727564736A6478', FirebirdSetting.Credential.Password);
+  CheckTrue(FirebirdSetting.Credential.IsValidPassword('6F63727564736A6478'));
   CheckEquals('localhost', FirebirdSetting.Server.Address);
   CheckEquals(3050, FirebirdSetting.Server.Port);
   CheckEquals('ISO8859_1', FirebirdSetting.Collation);
@@ -99,6 +101,6 @@ end;
 
 initialization
 
-RegisterTests('Connection settings test', [TFirebirdSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Firebird test', [TFirebirdSettingFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

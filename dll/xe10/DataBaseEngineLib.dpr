@@ -2,15 +2,17 @@ library DataBaseEngineLib;
 
 uses
   SimpleShareMem,
+  SysUtils,
+  Version,
+  VersionStage,
+  VersionFormat,
   LogActor,
+  AppLogActor,
   ADOEngine in '..\..\code\ADOEngine.pas',
-  ADOSettings in '..\..\code\ADOSettings.pas',
-  ADOSettingsFactory in '..\..\code\ADOSettingsFactory.pas',
-  ConnectionSettings in '..\..\code\ConnectionSettings.pas',
-  ConnectionSettingsFactory in '..\..\code\ConnectionSettingsFactory.pas',
-  Credential in '..\..\code\Credential.pas',
-  CredentialFactory in '..\..\code\CredentialFactory.pas',
-  CryptedCredential in '..\..\code\CryptedCredential.pas',
+  ADOSetting in '..\..\code\ADOSetting.pas',
+  ADOSettingFactory in '..\..\code\ADOSettingFactory.pas',
+  ConnectionSetting in '..\..\code\ConnectionSetting.pas',
+  ConnectionSettingFactory in '..\..\code\ConnectionSettingFactory.pas',
   DatabaseEngine in '..\..\code\DatabaseEngine.pas',
   DatabaseValueFormat in '..\..\code\DatabaseValueFormat.pas',
   DatasetExecution in '..\..\code\DatasetExecution.pas',
@@ -19,41 +21,49 @@ uses
   ExecutionResult in '..\..\code\ExecutionResult.pas',
   FailedExecution in '..\..\code\FailedExecution.pas',
   FirebirdEngine in '..\..\code\FirebirdEngine.pas',
-  FirebirdSettings in '..\..\code\FirebirdSettings.pas',
-  FirebirdSettingsFactory in '..\..\code\FirebirdSettingsFactory.pas',
+  FirebirdSetting in '..\..\code\FirebirdSetting.pas',
+  FirebirdSettingFactory in '..\..\code\FirebirdSettingFactory.pas',
+  FirebirdTransactionSetting in '..\..\code\FirebirdTransactionSetting.pas',
+  FirebirdTransactionSettingFactory in '..\..\code\FirebirdTransactionSettingFactory.pas',
   LoggedDatabaseEngine in '..\..\code\LoggedDatabaseEngine.pas',
-  Server in '..\..\code\Server.pas',
-  ServerFactory in '..\..\code\ServerFactory.pas',
   SQLiteEngine in '..\..\code\SQLiteEngine.pas',
-  SQLiteSettings in '..\..\code\SQLiteSettings.pas',
-  SQLiteSettingsFactory in '..\..\code\SQLiteSettingsFactory.pas',
+  SQLiteSetting in '..\..\code\SQLiteSetting.pas',
+  SQLiteSettingFactory in '..\..\code\SQLiteSettingFactory.pas',
   Statement in '..\..\code\Statement.pas',
   SuccededExecution in '..\..\code\SuccededExecution.pas',
-  ZeosDatabaseEngine in '..\..\code\ZeosDatabaseEngine.pas',
-  FirebirdTransactionSettings in '..\..\code\FirebirdTransactionSettings.pas',
-  FirebirdTransactionSettingsFactory in '..\..\code\FirebirdTransactionSettingsFactory.pas';
+  ZeosDatabaseEngine in '..\..\code\ZeosDatabaseEngine.pas';
 
 {$R *.res}
 
-function NewADOEngine: IDatabaseEngine; stdcall; export;
+function Version: IVersion; stdcall;
+begin
+  Result := TVersion.New(1, 0, 0, 0, TVersionStage.New(TVersionStageCode.Productive), EncodeDate(2020, 08, 12));
+end;
+
+function BuildLogActor(const LogActor: ILogActor): ILogActor;
+begin
+  Result := TAppLogActor.New(LogActor, 'DataBaseEngineLib(' + TVersionFormat.New(Version).AsString + ')');
+end;
+
+function NewADOEngine: IDatabaseEngine; stdcall;
 begin
   Result := TADOEngine.New;
 end;
 
-function NewFirebirdEngine: IDatabaseEngine; stdcall; export;
+function NewFirebirdEngine: IDatabaseEngine; stdcall;
 begin
   Result := TFirebirdEngine.New;
 end;
 
-// function NewFirebirdEmbedded15Engine: IDatabaseEngine; stdcall; export;
+// function NewFirebirdEmbedded15Engine: IDatabaseEngine; stdcall;
 // begin
 // Result := TFirebirdEmbedded15Engine.New;
 // end;
 
-function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor): IDatabaseEngine;
-  stdcall; export;
+function NewLoggedDatabaseEngine(const DatabaseEngine: IDatabaseEngine; const LogActor: ILogActor)
+  : IDatabaseEngine; stdcall;
 begin
-  Result := TLoggedDatabaseEngine.New(DatabaseEngine, LogActor);
+  Result := TLoggedDatabaseEngine.New(DatabaseEngine, BuildLogActor(LogActor));
 end;
 
 exports

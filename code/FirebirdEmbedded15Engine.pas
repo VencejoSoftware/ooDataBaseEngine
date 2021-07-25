@@ -20,7 +20,7 @@ uses
   SysUtils,
   DB,
   uib, uibdataset, uiblib, uibase,
-  ConnectionSettings, FirebirdSettings,
+  ConnectionSetting, FirebirdSetting,
   DatabaseEngine,
   Statement,
   ExecutionResult, FailedExecution, SuccededExecution, DatasetExecution;
@@ -48,7 +48,7 @@ type
     function BeginTransaction: Boolean;
     function CommitTransaction: Boolean;
     function RollbackTransaction: Boolean;
-    function Connect(const Settings: IConnectionSettings): Boolean;
+    function Connect(const Setting: IConnectionSetting): Boolean;
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean): IExecutionResult;
@@ -87,22 +87,22 @@ begin
   Result := True;
 end;
 
-function TFirebirdEmbedded15Engine.Connect(const Settings: IConnectionSettings): Boolean;
+function TFirebirdEmbedded15Engine.Connect(const Setting: IConnectionSetting): Boolean;
 var
-  FirebirdSettings: IFirebirdSettings;
+  FirebirdSetting: IFirebirdSetting;
 begin
-  FirebirdSettings := (Settings as IFirebirdSettings);
+  FirebirdSetting := (Setting as IFirebirdSetting);
   _Database.Params.Clear;
-  _Database.Params.Append(Format('sql_dialect=%d', [FirebirdSettings.Dialect]));
-  _Database.Params.Append(Format('DEFAULT CHARACTER SET %s', [FirebirdSettings.Collation]));
-  _Database.Params.Append(Format('SET NAMES %s', [FirebirdSettings.Collation]));
-  _Database.Params.Append(Format('lc_ctype=%s', [FirebirdSettings.Collation]));
-  _Database.LibraryName := FirebirdSettings.LibraryPath;
-  _Database.UserName := FirebirdSettings.Credential.User;
-  _Database.PassWord := FirebirdSettings.Credential.PassWord;
+  _Database.Params.Append(Format('sql_dialect=%d', [FirebirdSetting.Dialect]));
+  _Database.Params.Append(Format('DEFAULT CHARACTER SET %s', [FirebirdSetting.Collation]));
+  _Database.Params.Append(Format('SET NAMES %s', [FirebirdSetting.Collation]));
+  _Database.Params.Append(Format('lc_ctype=%s', [FirebirdSetting.Collation]));
+  _Database.LibraryName := FirebirdSetting.LibraryPath;
+  _Database.UserName := FirebirdSetting.Credential.User;
+  _Database.PassWord := FirebirdSetting.Credential.PassWord;
 // _Database.Role := Config.Role;
-  _Database.DatabaseName := FirebirdSettings.StorageName;
-  _Database.SQLDialect := FirebirdSettings.Dialect;
+  _Database.DatabaseName := FirebirdSetting.StorageName;
+  _Database.SQLDialect := FirebirdSetting.Dialect;
   _Database.Connected := True;
   Result := _Database.Connected;
 end;

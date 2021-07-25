@@ -38,10 +38,11 @@ var
   Credential: ICredential;
 begin
   CredentialFactory := TCredentialFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
-  Credential := CredentialFactory.Build('FirebirdEngine', _DataStorage);
+  Credential := CredentialFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(Credential));
   CheckEquals('sysdba', Credential.User);
   CheckEquals('6F63727564736A6478', Credential.Password);
+  CheckTrue(Credential.IsValidPassword('masterkey'));
 end;
 
 procedure TCredentialFactoryTest.BuildWithOutCipherReturnObject;
@@ -50,10 +51,11 @@ var
   Credential: ICredential;
 begin
   CredentialFactory := TCredentialFactory.New(nil);
-  Credential := CredentialFactory.Build('FirebirdEngine', _DataStorage);
+  Credential := CredentialFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(Credential));
   CheckEquals('sysdba', Credential.User);
-  CheckEquals('masterkey', Credential.Password);
+  CheckEquals('6F63727564736A6478', Credential.Password);
+  CheckTrue(Credential.IsValidPassword('6F63727564736A6478'));
 end;
 
 procedure TCredentialFactoryTest.BuildEmptyValuesReturnException;
@@ -85,6 +87,6 @@ end;
 
 initialization
 
-RegisterTests('Connection settings test', [TCredentialFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
+RegisterTests('Connection setting test', [TCredentialFactoryTest {$IFNDEF FPC}.Suite {$ENDIF}]);
 
 end.

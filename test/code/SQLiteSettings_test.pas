@@ -49,6 +49,6 @@ end;
 
 initialization
 
-RegisterTest(TSQLiteSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
+RegisterTest('SQLite test', TSQLiteSettingTest {$IFNDEF FPC}.Suite {$ENDIF});
 
 end.

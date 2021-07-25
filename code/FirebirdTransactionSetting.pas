@@ -15,8 +15,7 @@ unit FirebirdTransactionSetting;
 interface
 
 uses
-  SysUtils,
-  Generics.Collections;
+  SysUtils;
 
 type
 {$REGION 'documentation'}
@@ -241,7 +240,7 @@ const
 var
   ExtraOption: TFirebirdTransactionExtra;
 begin
-  SetLength(Result, 4);
+  SetLength(Result, 5);
   Result[0] := ISOLATION_LEVEL[_IsolationLevel];
   Result[1] := ACCESS_MODE[_AccessMode];
   Result[2] := LOCK_RESOLUTION[_LockResolution];

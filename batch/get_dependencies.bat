@@ -38,3 +38,9 @@ if not exist %delphiooLib%\ooLog\ (
   git clone https://github.com/VencejoSoftware/ooCipher.git %delphiooLib%\ooLog\
   call %delphiooLib%\ooLog\code\get_dependencies.bat
 )
+
+if not exist %delphiooLib%\ooSecurity\ (
+  @echo "Clonning ooSecurity..."
+  git clone https://github.com/VencejoSoftware/ooSecurity.git %delphiooLib%\ooSecurity\
+  call %delphiooLib%\ooSecurity\code\get_dependencies.bat
+)
