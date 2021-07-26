@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -15,6 +15,7 @@ unit ConnectionSettingFactory;
 interface
 
 uses
+  SysUtils,
   KeyCipher,
   DataStorage,
   Server, ServerFactory,
@@ -70,11 +71,15 @@ function TConnectionSettingFactory.Build(const ObjectName: WideString; const Dat
 var
   Credential: ICredential;
   Server: IServer;
+  StorageName, LibrayPath: WideString;
 begin
   Credential := _CredentialFactory.Build(ObjectName, DataStorage);
   Server := _ServerFactory.Build(ObjectName, DataStorage);
-  Result := TConnectionSetting.New(Credential, DataStorage.ReadString(ObjectName, 'StorageName'),
-    DataStorage.ReadString(ObjectName, 'LibrayPath'), Server);
+  StorageName := DataStorage.ReadString(ObjectName, 'StorageName');
+  if FileExists(StorageName) then
+    StorageName := ExpandFileName(StorageName);
+  LibrayPath := ExpandFileName(DataStorage.ReadString(ObjectName, 'LibrayPath'));
+  Result := TConnectionSetting.New(Credential, StorageName, LibrayPath, Server);
 end;
 
 constructor TConnectionSettingFactory.Create(const Cipher: IKeyCipher);

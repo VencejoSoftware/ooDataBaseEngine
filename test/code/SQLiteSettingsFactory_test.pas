@@ -1,5 +1,5 @@
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -40,7 +40,7 @@ begin
   SQLiteSetting := _SQLiteSettingFactory.Build('SQLiteEngine', _DataStorage);
   CheckTrue(Assigned(SQLiteSetting));
   CheckEquals(DEPENDS_PATH + 'TEST.db3', SQLiteSetting.StorageName);
-  CheckEquals(DEPENDS_PATH + 'SQLite3x64\sqlite3.dll', SQLiteSetting.LibraryPath);
+  CheckEquals(ExpandFileName(DEPENDS_PATH + 'SQLite3x64\sqlite3.dll'), SQLiteSetting.LibraryPath);
   CheckFalse(Assigned(SQLiteSetting.Credential));
   CheckFalse(Assigned(SQLiteSetting.Server));
   CheckEquals('UTF16', SQLiteSetting.CharSet);

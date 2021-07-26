@@ -1,5 +1,5 @@
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -16,10 +16,10 @@ uses
   LogActor,
   ConsoleLog,
   DataStorage,
-  ConnectionSettings,
-  ConnectionSettingsFactory,
-  FirebirdSettings,
-  FirebirdSettingsFactory,
+  ConnectionSetting,
+  ConnectionSettingFactory,
+  FirebirdSetting,
+  FirebirdSettingFactory,
   DatabaseEngine,
   Statement,
   ExecutionResult,
@@ -35,8 +35,8 @@ const
   DEPENDS_PATH = '..\..\..\..\dependencies\';
 var
   LibPath: WideString;
-// DataStorage: IDataStorage;
-  Settings: IConnectionSettings;
+  // DataStorage: IDataStorage;
+  Setting: IConnectionSetting;
   DatabaseEngine: IDatabaseEngine;
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
@@ -45,16 +45,16 @@ var
 begin
   LogActor := TLogActor.New(TConsoleLog.New(nil));
   DatabaseEngine := DatabaseEngineLib.NewLoggedDatabaseEngine(DatabaseEngineLib.NewFirebirdEngine, LogActor);
-// DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
-// Settings := TFirebirdSettingsFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'))
-// .Build('FirebirdEngine', DataStorage);
+  // DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Setting.ini');
+  // Setting := TFirebirdSettingFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'))
+  // .Build('FirebirdEngine', DataStorage);
 {$IFDEF WIN64}
   LibPath := DEPENDS_PATH + 'Firebird25x64\fbembed.dll';
 {$ELSE}
   LibPath := DEPENDS_PATH + 'Firebird25x32\fbembed.dll';
 {$ENDIF}
-  Settings := TFirebirdSettings.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
-  DatabaseEngine.Connect(Settings);
+  Setting := TFirebirdSetting.NewEmbedded(DEPENDS_PATH + 'TEST.FDB', LibPath, 'ISO8859_1', 'Firebird');
+  DatabaseEngine.Connect(Setting);
   try
     SQL := 'select current_timestamp from RDB$DATABASE';
     ExecutionResult := DatabaseEngine.ExecuteReturning(TStatement.New(SQL), False);
@@ -81,7 +81,7 @@ const
   PASSWORD_KEY = '4A383018-9998-4D3C-A423-41253A290481';
 var
   DataStorage: IDataStorage;
-  Settings: IConnectionSettings;
+  Setting: IConnectionSetting;
   DatabaseEngine: IDatabaseEngine;
   ExecutionResult: IExecutionResult;
   Dataset: TDataSet;
@@ -90,9 +90,9 @@ var
 begin
   LogActor := TLogActor.New(TConsoleLog.New(nil));
   DatabaseEngine := DatabaseEngineLib.NewLoggedDatabaseEngine(DatabaseEngineLib.NewFirebirdEngine, LogActor);
-  DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'settings.ini');
-  Settings := TFirebirdSettingsFactory.New(TXorCipher.New(PASSWORD_KEY)).Build('FirebirdEngine15', DataStorage);
-  DatabaseEngine.Connect(Settings, PASSWORD_KEY);
+  DataStorage := TINIDataStorage.New(DEPENDS_PATH + 'Setting.ini');
+  Setting := TFirebirdSettingFactory.New(TXorCipher.New(PASSWORD_KEY)).Build('FirebirdEngine15', DataStorage);
+  DatabaseEngine.Connect(Setting, PASSWORD_KEY);
   try
     SQL := 'select current_timestamp from RDB$DATABASE';
     ExecutionResult := DatabaseEngine.ExecuteReturning(TStatement.New(SQL), False);
@@ -122,8 +122,8 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   try
     DatabaseEngineLib := TDatabaseEngineLib.New(DEPLOY_PATH + 'DataBaseEngineLib.dll');
-// DemoDataBaseFirebird;
-    DemoDataBaseFirebird15;
+    DemoDataBaseFirebird;
+    // DemoDataBaseFirebird15;
     WriteLn('Press any key to exit');
     ReadLn;
   except

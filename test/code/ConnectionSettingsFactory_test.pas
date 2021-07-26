@@ -1,5 +1,5 @@
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -42,8 +42,8 @@ begin
   ConnectionSettingFactory := TConnectionSettingFactory.New(TXorCipher.New('1DB90020-0F32-4879-80AB-AA92C902FC8D'));
   ConnectionSetting := ConnectionSettingFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(ConnectionSetting));
-  CheckEquals(DEPENDS_PATH + 'TEST_2_5.FDB', ConnectionSetting.StorageName);
-  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSetting.LibraryPath);
+  CheckEquals(ExpandFileName(DEPENDS_PATH + 'TEST_2_5.FDB'), ConnectionSetting.StorageName);
+  CheckEquals(ExpandFileName(DEPENDS_PATH + 'Firebird25x64\fbembed.dll'), ConnectionSetting.LibraryPath);
   CheckEquals('sysdba', ConnectionSetting.Credential.User);
   CheckEquals('6F63727564736A6478', ConnectionSetting.Credential.Password);
   CheckEquals('localhost', ConnectionSetting.Server.Address);
@@ -58,8 +58,8 @@ begin
   ConnectionSettingFactory := TConnectionSettingFactory.New(nil);
   ConnectionSetting := ConnectionSettingFactory.Build('FirebirdEngine25', _DataStorage);
   CheckTrue(Assigned(ConnectionSetting));
-  CheckEquals(DEPENDS_PATH + 'TEST_2_5.FDB', ConnectionSetting.StorageName);
-  CheckEquals(DEPENDS_PATH + 'Firebird25x64\fbembed.dll', ConnectionSetting.LibraryPath);
+  CheckEquals(ExpandFileName(DEPENDS_PATH + 'TEST_2_5.FDB'), ConnectionSetting.StorageName);
+  CheckEquals(ExpandFileName(DEPENDS_PATH + 'Firebird25x64\fbembed.dll'), ConnectionSetting.LibraryPath);
   CheckEquals('sysdba', ConnectionSetting.Credential.User);
   CheckEquals('6F63727564736A6478', ConnectionSetting.Credential.Password);
   CheckEquals('localhost', ConnectionSetting.Server.Address);

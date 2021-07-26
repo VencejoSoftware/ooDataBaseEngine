@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -85,7 +85,7 @@ type
   @member(Kind @seealso(IStatement.Kind))
   @member(ResolveBindParameters @seealso(IStatement.ResolveBindParameters))
   @member(
-    SanitizeEOLStatement Checks the end of line delimiter character
+  SanitizeEOLStatement Checks the end of line delimiter character
     @param(Statement Statement Statement)
     @return(Statement text)
   )
@@ -127,22 +127,29 @@ type
 {
   @abstract(Object to define an statement list)
   @member(
-    LoadFromText Load items statment from text
-    @param(Text Text delimited by CRLF)
+  LoadFromText Load items statment from text
+    @param(Text Text content delimited)
+    @param(StatementSeparator Delimited of statement, by default ";")
   )
 }
 {$ENDREGION}
 
   IStatementList = interface(IIterableList<IStatement>)
     ['{F05B8F43-D6C6-4606-95E3-CEE1B2B18165}']
-    procedure LoadFromText(const Text: WideString);
+    procedure LoadFromText(const Text: WideString; const StatementSeparator: WideString = TStatement.STATEMENT_DELIMITER);
   end;
 
 {$REGION 'documentation'}
 {
   @abstract(Implementation of @link(IStatementList))
   @member(LoadFromText @seealso(IStatementList.LoadFromText))
-  @member(New Creates a new @classname as interface)
+  @member(
+    ResolveBlockOfCode Resolve code blocks of SQL
+    @param(Text Text content delimited)
+    @param(StatementSeparator Delimited of statement, by default ";")
+  )
+  @member(
+    New Creates a new @classname as interface)
   @member(
     NewByArray Creates a new @classname as interface using an initial parameter list
     @param(Statements Array of @link(IStatement Statement objects))
@@ -151,8 +158,11 @@ type
 {$ENDREGION}
 
   TStatementList = class sealed(TIterableList<IStatement>, IStatementList)
+  private
+    function ResolveBlockOfCode(const ArrayItems: TStringDynArray; var CurrentIndex: Integer;
+      const StatementSeparator: WideString): String;
   public
-    procedure LoadFromText(const Text: WideString);
+    procedure LoadFromText(const Text: WideString; const StatementSeparator: WideString = TStatement.STATEMENT_DELIMITER);
     class function New: IStatementList;
     class function NewByArray(const Statements: Array of IStatement): IStatementList;
   end;
@@ -208,16 +218,48 @@ end;
 
 { TStatementList }
 
-procedure TStatementList.LoadFromText(const Text: WideString);
+function TStatementList.ResolveBlockOfCode(const ArrayItems: TStringDynArray; var CurrentIndex: Integer;
+  const StatementSeparator: WideString): String;
+const
+  START_BLOCK = '--START-BLOCK';
+  END_BLOCK = '--END-BLOCK';
+var
+  SQL: String;
+begin
+  Result := EmptyStr;
+  SQL := Trim(ArrayItems[CurrentIndex]);
+  if SameText(SQL, START_BLOCK) then
+  begin
+    while CurrentIndex <= High(ArrayItems) do
+    begin
+      Inc(CurrentIndex);
+      SQL := ArrayItems[CurrentIndex];
+      if SameText(Trim(SQL), END_BLOCK) then
+        Exit(Trim(Result))
+      else
+        Result := Result + SQL + StatementSeparator;
+    end;
+  end
+  else if Length(SQL) > 0 then
+    Result := SQL + StatementSeparator;
+end;
+
+procedure TStatementList.LoadFromText(const Text: WideString; const StatementSeparator: WideString);
 var
   ArrayItems: TStringDynArray;
-  Item: String;
+  i: Integer;
+  SQL: String;
 begin
   Clear;
-  ArrayItems := SplitString(Text, #13);
-  for Item in ArrayItems do
-    if Length(Item) > 0 then
-      Add(TStatement.New(Item));
+  ArrayItems := SplitString(Text, StatementSeparator);
+  i := 0;
+  while i <= High(ArrayItems) do
+  begin
+    SQL := ResolveBlockOfCode(ArrayItems, i, StatementSeparator);
+    if Length(SQL) > 0 then
+      Add(TStatement.New(SQL));
+    Inc(i);
+  end;
 end;
 
 class function TStatementList.New: IStatementList;

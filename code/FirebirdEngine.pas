@@ -1,6 +1,6 @@
 {$REGION 'documentation'}
 {
-  Copyright (c) 2020, Vencejo Software
+  Copyright (c) 2021, Vencejo Software
   Distributed under the terms of the Modified BSD License
   The full license is distributed with this software
 }
@@ -56,7 +56,6 @@ begin
   Database.Properties.Add('isc_tpb_read');
   Database.Properties.Add('isc_tpb_write');
   Database.TransactIsolationLevel := TZTransactIsolationLevel.tiReadCommitted;
-  Database.AutoCommit := False;
   Database.Connect;
   Database.Password := EmptyWideStr;
   Result := IsConnected;
