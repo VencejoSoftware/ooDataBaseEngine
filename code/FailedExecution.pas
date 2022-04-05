@@ -15,10 +15,40 @@ unit FailedExecution;
 interface
 
 uses
+  SysUtils,
   Statement,
   ExecutionResult;
 
 type
+{$REGION 'documentation'}
+{
+  @abstract(Object to define an execution exception)
+  @member(
+    ErrorCode Returns the error code
+    @return(Integer with error code)
+  )
+  @member(
+    ErrorText Fail message description
+    @return(Text message)
+  )
+  @member(
+    Statement Statement executed
+    @return(Text statement)
+  )
+}
+{$ENDREGION}
+  EDatabaseFailed = class sealed(Exception)
+  strict private
+    _Statement: WideString;
+    _ErrorCode: NativeInt;
+    _ErrorText: WideString;
+  public
+    function ErrorCode: NativeInt;
+    function ErrorText: WideString;
+    function Statement: WideString;
+    constructor Create(const ErrorCode: NativeInt; const ErrorText, Statement: WideString);
+  end;
+
 {$REGION 'documentation'}
 {
   @abstract(Object to define an failed execution result)
@@ -36,6 +66,7 @@ type
     ['{4270D9CD-06DE-4E08-9448-7AE82E111CB0}']
     function ErrorCode: NativeInt;
     function Message: WideString;
+    function ToException: EDatabaseFailed;
   end;
 
 {$REGION 'documentation'}
@@ -70,6 +101,7 @@ type
     function Failed: Boolean;
     function ErrorCode: NativeInt;
     function Message: WideString;
+    function ToException: EDatabaseFailed;
     constructor Create(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString);
     class function New(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString)
       : IFailedExecution;
@@ -97,6 +129,11 @@ begin
   Result := _Message;
 end;
 
+function TFailedExecution.ToException: EDatabaseFailed;
+begin
+  Result := EDatabaseFailed.Create(_ErrorCode, Trim(_Message), Trim(_Statement.Syntax));
+end;
+
 constructor TFailedExecution.Create(const Statement: IStatement; const ErrorCode: NativeInt; const Message: WideString);
 begin
   _Statement := Statement;
@@ -108,6 +145,31 @@ class function TFailedExecution.New(const Statement: IStatement; const ErrorCode
   : IFailedExecution;
 begin
   Result := TFailedExecution.Create(Statement, ErrorCode, Message);
+end;
+
+{ EDatabaseFailed }
+
+function EDatabaseFailed.ErrorCode: NativeInt;
+begin
+  Result := _ErrorCode;
+end;
+
+function EDatabaseFailed.ErrorText: WideString;
+begin
+  Result := _ErrorText;
+end;
+
+function EDatabaseFailed.Statement: WideString;
+begin
+  Result := _Statement;
+end;
+
+constructor EDatabaseFailed.Create(const ErrorCode: NativeInt; const ErrorText, Statement: WideString);
+begin
+  inherited Create(Format('%d|"%s"|Executed="%s"', [ErrorCode, ErrorText, Statement]));
+  _ErrorCode := ErrorCode;
+  _ErrorText := ErrorText;
+  _Statement := Statement;
 end;
 
 end.

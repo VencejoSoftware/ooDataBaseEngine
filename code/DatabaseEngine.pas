@@ -103,7 +103,7 @@ type
     function Disconnect: Boolean;
     function IsConnected: Boolean;
     function Execute(const Statement: IStatement; const UseGlobalTransaction: Boolean = False): IExecutionResult;
-    function ExecuteReturning(const Statement: IStatement; const CommitData: Boolean;
+    function ExecuteReturning(const Statement: IStatement; const CommitData: Boolean = False;
       const UseGlobalTransaction: Boolean = False): IExecutionResult;
     function ExecuteScript(const StatementList: IStatementList; const SkipErrors: Boolean = False)
       : IExecutionResultList;
